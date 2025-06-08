@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UIFlow Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .demo-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .ui-element {
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ui-element:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .basic { background-color: #e8f5e8; }
+        .advanced { background-color: #fff3cd; }
+        .expert { background-color: #f8d7da; }
+        
+
+        
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .stats {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .override-indicator {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div class="header">
+        <h1>UIFlow Demo</h1>
+        <p>This demo showcases how UIFlow adapts UI density based on user behavior.</p>
+    </div>
+    
+    <div class="controls">
+        <h3>Controls</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+            <div>
+                <label for="editor-density-slider">📝 Editor Density:</label>
+                <input type="range" id="editor-density-slider" class="slider" min="0" max="100" value="30">
+                <span id="editor-density-value">30%</span>
+            </div>
+            <div>
+                <label for="dashboard-density-slider">📊 Dashboard Density:</label>
+                <input type="range" id="dashboard-density-slider" class="slider" min="0" max="100" value="30">
+                <span id="dashboard-density-value">30%</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button id="simulate-beginner">Simulate Beginner User (7 days)</button>
+            <button id="simulate-power-user">Simulate Power User (7 days)</button>
+            <button id="reset-btn">Reset All Learning</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <h3>🏷️ User Education</h3>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button id="highlight-new">Highlight New Features</button>
+            <button id="show-tips">Show All Tips</button>
+            <button id="clear-highlights">Clear All Highlights</button>
+            <button id="feature-tour">Start Feature Tour</button>
+        </div>
+    </div>
+
+    <div class="controls">
+        <h3>🌐 Data Sources (Mock)</h3>
+        <p><em>Demonstrates API + Segment integration</em></p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px;">
+            <div>
+                <label>
+                    <input type="checkbox" id="enable-api"> Enable Data Sources
+                </label>
+                <br>
+                <small>API: Primary source for reading<br>
+                Segment: Analytics tracking<br>
+                User ID: demo-user-123</small>
+            </div>
+            <div>
+                <button id="force-sync">Force Sync</button>
+                <button id="admin-panel-btn">Admin Panel</button>
+                <button id="segment-events-btn">View Segment Events</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="controls" style="display: none; border: 2px solid #ff6b6b;">
+        <h3>🔧 Admin Override Panel</h3>
+        <p><em>Simulate admin controls that override user preferences</em></p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <h4>Editor Override</h4>
+                <label for="admin-editor-slider">Force Density:</label>
+                <input type="range" id="admin-editor-slider" class="slider" min="0" max="100" value="50" disabled>
+                <span id="admin-editor-value">50%</span>
+                <br>
+                <label>
+                    <input type="checkbox" id="admin-editor-enable"> Enable Override
+                </label>
+            </div>
+            <div>
+                <h4>Dashboard Override</h4>
+                <label for="admin-dashboard-slider">Force Density:</label>
+                <input type="range" id="admin-dashboard-slider" class="slider" min="0" max="100" value="50" disabled>
+                <span id="admin-dashboard-value">50%</span>
+                <br>
+                <label>
+                    <input type="checkbox" id="admin-dashboard-enable"> Enable Override
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="demo-section" id="editor-section">
+        <h2>📝 Text Editor Toolbar</h2>
+        <p>Click on the tools to simulate usage. Watch how each area adapts independently!</p>
+        
+        <div class="ui-element basic" data-action="bold">Bold</div>
+        <div class="ui-element basic" data-action="italic">Italic</div>
+        <div class="ui-element basic" data-action="underline">Underline</div>
+        
+        <div class="ui-element advanced" data-action="font-size">Font Size</div>
+        <div class="ui-element advanced" data-action="text-color">Text Color</div>
+        <div class="ui-element advanced" data-action="alignment">Alignment</div>
+        
+        <div class="ui-element expert" data-action="styles">Custom Styles</div>
+        <div class="ui-element expert" data-action="macros">Macros</div>
+        <div class="ui-element expert" data-action="plugins">Plugin Manager</div>
+    </div>
+    
+    <div class="demo-section" id="dashboard-section">
+        <h2>📊 Analytics Dashboard</h2>
+        <p>A simulated analytics dashboard with separate learning from the editor area.</p>
+        
+        <div class="ui-element basic" data-action="overview">Overview</div>
+        <div class="ui-element basic" data-action="charts">Basic Charts</div>
+        
+        <div class="ui-element advanced" data-action="filters">Advanced Filters</div>
+        <div class="ui-element advanced" data-action="exports">Export Data</div>
+        <div class="ui-element advanced" data-action="compare">Compare Periods</div>
+        
+        <div class="ui-element expert" data-action="sql">SQL Query Builder</div>
+        <div class="ui-element expert" data-action="api">API Access</div>
+        <div class="ui-element expert" data-action="automation">Automation Rules</div>
+    </div>
+    
+    <div class="stats">
+        <h3>Usage Statistics</h3>
+        <div id="stats-content">
+            Click on elements to see usage patterns emerge.
+        </div>
+    </div>
+    
+    <script type="module" src="./demo.js"></script>
+</body>
+</html>
