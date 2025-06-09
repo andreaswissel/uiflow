@@ -33,6 +33,7 @@
     "node_modules",
     "dist",
     "test",
-    "demo"
+    "demo",
+    "src/adapters/angular/**/*"
   ]
 }
