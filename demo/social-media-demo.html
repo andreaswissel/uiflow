@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialFlow - Smart Social Media Post Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
+            color: #718096;
+            font-size: 16px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        
+        .composer-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .widget {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            opacity: 1;
+        }
+        
+        .widget.hidden {
+            opacity: 0.3;
+            pointer-events: none;
+            transform: scale(0.95);
+        }
+        
+        .widget-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .widget-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            opacity: 0.7;
+        }
+        
+        .widget-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .post-textarea {
+            width: 100%;
+            min-height: 120px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s;
+        }
+        
+        .post-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .character-count {
+            text-align: right;
+            margin-top: 8px;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        .platform-selector {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        
+        .platform-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .platform-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .media-upload {
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .media-upload:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .media-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .media-item {
+            width: 100%;
+            height: 100px;
+            background: #f7fafc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #718096;
+            font-size: 12px;
+        }
+        
+        .schedule-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+        }
+        
+        .btn.secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .btn.secondary:hover {
+            background: #cbd5e0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .stat-item {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2d3748;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 4px;
+        }
+        
+        .hashtag-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .hashtag-tag {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .hashtag-tag:hover {
+            background: #e2e8f0;
+        }
+        
+        .progress-bar {
+            background: #e2e8f0;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .unlock-hint {
+            background: #fff5cd;
+            border: 1px solid #f6d55c;
+            color: #744210;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+        
+        .feature-badge {
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .feature-badge.locked {
+            background: #cbd5e0;
+            color: #718096;
+        }
+        
+        /* UIFlow specific styles */
+        [data-uiflow-visible="false"] {
+            display: none !important;
+        }
+        
+        [data-uiflow-visible="true"] {
+            display: block;
+        }
+        
+        .uiflow-highlight {
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6) !important;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .demo-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+        }
+        
+        .demo-controls h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+        
+        .demo-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .demo-btn:hover {
+            background: #edf2f7;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .demo-controls {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 SocialFlow</h1>
+            <p>Smart social media post creator with adaptive UI that learns from your behavior</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 25%"></div>
+            </div>
+        </div>
+
+        <!-- Demo Controls -->
+        <div class="demo-controls">
+            <h3>🎮 Demo Controls</h3>
+            <button class="demo-btn" onclick="simulateUser('beginner')">👶 Simulate Beginner</button>
+            <button class="demo-btn" onclick="simulateUser('content-creator')">✨ Simulate Content Creator</button>
+            <button class="demo-btn" onclick="simulateUser('social-manager')">💼 Simulate Social Manager</button>
+            <button class="demo-btn" onclick="resetProgress()">🔄 Reset Progress</button>
+            <button class="demo-btn" onclick="showStats()">📊 Show Analytics</button>
+        </div>
+
+        <div class="main-content">
+            <!-- Main Composer Section -->
+            <div class="composer-section" data-uiflow-area="composer">
+                <div class="widget-header">
+                    <span class="widget-icon">✍️</span>
+                    <h2 class="widget-title">Create Post</h2>
+                </div>
+
+                <!-- Platform Selector -->
+                <div class="platform-selector">
+                    <button class="platform-btn active" data-platform="twitter">🐦 Twitter</button>
+                    <button class="platform-btn" data-platform="linkedin">💼 LinkedIn</button>
+                    <button class="platform-btn" data-platform="facebook">📘 Facebook</button>
+                    <button class="platform-btn advanced" data-platform="instagram" 
+                            id="instagram-platform">📸 Instagram</button>
+                </div>
+
+                <!-- Post Composer -->
+                <textarea 
+                    class="post-textarea" 
+                    placeholder="What's happening?"
+                    id="post-content"
+                    maxlength="280">
+                </textarea>
+                <div class="character-count" id="char-count">0 / 280</div>
+
+                <!-- Basic Actions -->
+                <div style="margin-top: 16px; display: flex; gap: 12px;">
+                    <button class="btn" id="publish-now" onclick="publishPost()">📤 Publish Now</button>
+                    <button class="btn secondary" id="save-draft" onclick="saveDraft()">💾 Save Draft</button>
+                </div>
+
+                <!-- Advanced Text Tools (unlocked after 5 posts) -->
+                <div class="widget" id="text-tools" data-uiflow-category="advanced" style="margin-top: 20px;">
+                    <div class="widget-header">
+                        <span class="widget-icon">🎯</span>
+                        <span class="widget-title">Text Enhancement</span>
+                        <span class="feature-badge">ADVANCED</span>
+                    </div>
+                    <button class="btn secondary" onclick="enhanceText()">✨ AI Text Enhancement</button>
+                    <button class="btn secondary" onclick="checkGrammar()" style="margin-top: 8px;">📝 Grammar Check</button>
+                </div>
+            </div>
+
+            <!-- Sidebar with Progressive Features -->
+            <div class="sidebar">
+                <!-- Media Upload Widget (unlocked after 3 posts) -->
+                <div class="widget" id="media-widget" data-uiflow-area="media" data-uiflow-category="advanced">
+                    <div class="widget-header">
+                        <span class="widget-icon">🖼️</span>
+                        <span class="widget-title">Media</span>
+                        <span class="feature-badge">UNLOCKED</span>
+                    </div>
+                    <div class="media-upload" onclick="uploadMedia()">
+                        <div>📸 Add Photos or Videos</div>
+                        <div style="font-size: 12px; color: #718096; margin-top: 4px;">
+                            Drag & drop or click to upload
+                        </div>
+                    </div>
+                    <div class="media-preview" id="media-preview"></div>
+                    <div class="unlock-hint" id="media-hint" style="display: none;">
+                        📸 Unlock media uploads by creating 3 posts first!
+                    </div>
+                </div>
+
+                <!-- Scheduling Widget (unlocked after using media) -->
+                <div class="widget" id="schedule-widget" data-uiflow-area="scheduling" data-uiflow-category="expert">
+                    <div class="widget-header">
+                        <span class="widget-icon">⏰</span>
+                        <span class="widget-title">Schedule</span>
+                        <span class="feature-badge locked">LOCKED</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date & Time</label>
+                        <div class="schedule-controls">
+                            <input type="date" class="form-input" id="schedule-date">
+                            <input type="time" class="form-input" id="schedule-time">
+                        </div>
+                    </div>
+                    <button class="btn" onclick="schedulePost()">⏰ Schedule Post</button>
+                    <div class="unlock-hint" id="schedule-hint">
+                        ⏰ Unlock scheduling by using media uploads first!
+                    </div>
+                </div>
+
+                <!-- Hashtag Suggestions (unlocked after 2 posts) -->
+                <div class="widget" id="hashtag-widget" data-uiflow-area="tools" data-uiflow-category="advanced">
+                    <div class="widget-header">
+                        <span class="widget-icon">#️⃣</span>
+                        <span class="widget-title">Hashtag Suggestions</span>
+                        <span class="feature-badge">SMART</span>
+                    </div>
+                    <div class="hashtag-suggestions">
+                        <span class="hashtag-tag" onclick="addHashtag('#socialmedia')">#socialmedia</span>
+                        <span class="hashtag-tag" onclick="addHashtag('#marketing')">#marketing</span>
+                        <span class="hashtag-tag" onclick="addHashtag('#content')">#content</span>
+                        <span class="hashtag-tag" onclick="addHashtag('#strategy')">#strategy</span>
+                    </div>
+                    <button class="btn secondary" style="margin-top: 12px;" onclick="generateHashtags()">
+                        🤖 Generate AI Hashtags
+                    </button>
+                </div>
+
+                <!-- Analytics Widget (unlocked after 5 scheduled posts) -->
+                <div class="widget" id="analytics-widget" data-uiflow-area="analytics" data-uiflow-category="expert">
+                    <div class="widget-header">
+                        <span class="widget-icon">📊</span>
+                        <span class="widget-title">Analytics</span>
+                        <span class="feature-badge locked">PRO</span>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="posts-count">0</div>
+                            <div class="stat-label">Total Posts</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="engagement-rate">0%</div>
+                            <div class="stat-label">Engagement</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="reach-count">0</div>
+                            <div class="stat-label">Reach</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="best-time">--</div>
+                            <div class="stat-label">Best Time</div>
+                        </div>
+                    </div>
+                    <button class="btn secondary" style="margin-top: 12px;" onclick="viewDetailedAnalytics()">
+                        📈 Detailed Analytics
+                    </button>
+                    <div class="unlock-hint" id="analytics-hint">
+                        📊 Unlock analytics by scheduling 5 posts!
+                    </div>
+                </div>
+
+                <!-- Audience Targeting (expert feature) -->
+                <div class="widget" id="targeting-widget" data-uiflow-area="tools" data-uiflow-category="expert">
+                    <div class="widget-header">
+                        <span class="widget-icon">🎯</span>
+                        <span class="widget-title">Audience Targeting</span>
+                        <span class="feature-badge locked">EXPERT</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Audience</label>
+                        <select class="form-input">
+                            <option>All Followers</option>
+                            <option>Marketing Professionals</option>
+                            <option>Tech Enthusiasts</option>
+                            <option>Content Creators</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Geographic Focus</label>
+                        <select class="form-input">
+                            <option>Worldwide</option>
+                            <option>North America</option>
+                            <option>Europe</option>
+                            <option>Asia Pacific</option>
+                        </select>
+                    </div>
+                    <div class="unlock-hint" id="targeting-hint">
+                        🎯 Unlock targeting by becoming a power user!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load UIFlow and Demo Scripts -->
+    <script type="module" src="../src/index.ts"></script>
+    <script type="module" src="./social-media-demo.ts"></script>
+</body>
+</html>

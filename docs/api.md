@@ -6,6 +6,8 @@ Complete API reference for UIFlow - Adaptive UI Density Management Library.
 
 - [Core API](#core-api)
 - [Configuration](#configuration)
+- [Element Dependencies](#element-dependencies)
+- [A/B Testing](#ab-testing)
 - [Element Management](#element-management)
 - [Density Control](#density-control)
 - [Data Sources](#data-sources)
@@ -94,6 +96,203 @@ uiflow.destroy();
 | `userId` | string | `null` | User identifier for data sources |
 | `dataSources` | Object | `{}` | Data source configurations |
 
+## Element Dependencies
+
+### loadConfiguration(config)
+
+Load a declarative JSON configuration with element dependencies and rules.
+
+```javascript
+await uiflow.loadConfiguration(config);
+```
+
+**Parameters:**
+- `config` (Object): Configuration object with areas, elements, dependencies, and rules
+
+**Returns:** Promise<void>
+
+**Example:**
+```javascript
+const config = {
+  "areas": {
+    "editor": {
+      "defaultDensity": 0.3,
+      "elements": [
+        {
+          "id": "advanced-tools",
+          "selector": "#advanced-tools",
+          "category": "advanced",
+          "helpText": "Advanced editing features",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "basic-tools",
+              "threshold": 5,
+              "description": "Use basic tools 5 times first"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "rules": [
+    {
+      "name": "Power User Unlock",
+      "trigger": {
+        "type": "usage_pattern",
+        "elements": ["advanced-tools"],
+        "frequency": "daily",
+        "duration": "3d"
+      },
+      "action": {
+        "type": "unlock_category",
+        "category": "expert"
+      }
+    }
+  ]
+};
+
+await uiflow.loadConfiguration(config);
+```
+
+### validateDependencies(elementId)
+
+Check if an element's dependencies are satisfied.
+
+```javascript
+const isUnlocked = uiflow.validateDependencies(elementId);
+```
+
+**Parameters:**
+- `elementId` (string): Element ID to validate
+
+**Returns:** boolean - True if dependencies are satisfied
+
+**Example:**
+```javascript
+if (uiflow.validateDependencies('advanced-editor')) {
+  // Show advanced editor features
+  showAdvancedEditor();
+} else {
+  // Show unlock requirements
+  showUnlockHint('Use basic editor 5 times first');
+}
+```
+
+### Dependency Types
+
+#### usage_count
+Unlock after using another element X times:
+```javascript
+{
+  "type": "usage_count",
+  "elementId": "target-element",
+  "threshold": 5
+}
+```
+
+#### sequence
+Unlock after completing a workflow:
+```javascript
+{
+  "type": "sequence",
+  "elements": ["step1", "step2", "step3"]
+}
+```
+
+#### time_based
+Unlock based on usage over time:
+```javascript
+{
+  "type": "time_based", 
+  "elementId": "target-element",
+  "timeWindow": "7d",
+  "minUsage": 3
+}
+```
+
+#### logical_and
+Unlock when multiple conditions are met:
+```javascript
+{
+  "type": "logical_and",
+  "elements": ["element-a", "element-b"]
+}
+```
+
+## A/B Testing
+
+### trackABTestMetric(metric, value)
+
+Track a metric for A/B testing analysis.
+
+```javascript
+uiflow.trackABTestMetric(metric, value);
+```
+
+**Parameters:**
+- `metric` (string): Metric name
+- `value` (number, default: 1): Metric value
+
+**Example:**
+```javascript
+// Track feature adoption
+uiflow.trackABTestMetric('feature_used');
+
+// Track conversion with custom value
+uiflow.trackABTestMetric('revenue', 29.99);
+
+// Track user engagement
+uiflow.trackABTestMetric('session_duration', 450);
+```
+
+### getABTestResults()
+
+Get current A/B test results and metrics.
+
+```javascript
+const results = uiflow.getABTestResults();
+```
+
+**Returns:** Object with test variant and collected metrics
+
+**Example:**
+```javascript
+const results = uiflow.getABTestResults();
+console.log(results);
+// Output:
+// {
+//   variant: "control",
+//   metrics: {
+//     feature_used: 12,
+//     revenue: 89.97,
+//     session_duration: 1350
+//   }
+// }
+```
+
+### A/B Test Configuration
+
+Configure A/B tests in your JSON configuration:
+
+```javascript
+{
+  "abTest": {
+    "name": "Feature Rollout Test",
+    "variants": [
+      { "id": "control", "weight": 0.5 },
+      { "id": "aggressive", "weight": 0.3 },
+      { "id": "conservative", "weight": 0.2 }
+    ]
+  }
+}
+```
+
+**Variant Selection:**
+- Users are automatically assigned to variants based on weights
+- Assignment is persistent across sessions
+- Metrics are tracked per variant for comparison
+
 ## Element Management
 
 ### categorize(element, category, area, options)
@@ -113,13 +312,21 @@ uiflow.categorize(element, category, area, options);
 **Options:**
 - `helpText` (string): Help text for user education
 - `isNew` (boolean): Mark element as new feature
+- `dependencies` (Array): Element dependency rules (see [Element Dependencies](#element-dependencies))
 
 **Example:**
 ```javascript
 const button = document.querySelector('#advanced-btn');
 uiflow.categorize(button, 'advanced', 'toolbar', {
   helpText: 'Advanced text formatting options',
-  isNew: true
+  isNew: true,
+  dependencies: [
+    {
+      type: 'usage_count',
+      elementId: 'basic-btn',
+      threshold: 3
+    }
+  ]
 });
 ```
 
@@ -476,7 +683,15 @@ import { createUIFlow, useUIFlowElement, UIFlowElement } from 'uiflow/adapters/v
 
 ### Angular
 ```javascript
-import { UIFlowService, UIFlowModule } from 'uiflow/adapters/angular';
+// Standalone components (recommended)
+import { 
+  UIFlowService, 
+  provideUIFlow, 
+  UIFLOW_COMPONENTS 
+} from 'uiflow/adapters/angular';
+
+// Legacy module approach (deprecated)
+import { UIFlowModule } from 'uiflow/adapters/angular';
 ```
 
 See [Framework Adapters Documentation](./framework-adapters.md) for detailed usage.

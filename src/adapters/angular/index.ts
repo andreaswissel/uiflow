@@ -18,8 +18,11 @@ import {
   TemplateRef,
   ViewContainerRef,
   ChangeDetectorRef,
-  NgModule
+  Provider,
+  EnvironmentProviders,
+  makeEnvironmentProviders
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { UIFlow } from '../../index.js';
@@ -169,7 +172,8 @@ export class UIFlowService implements OnDestroy {
  * Directive for automatic element categorization
  */
 @Directive({
-  selector: '[uiflowElement]'
+  selector: '[uiflowElement]',
+  standalone: true
 })
 export class UIFlowElementDirective implements OnInit, OnDestroy {
   @Input() uiflowElement!: string; // category
@@ -218,7 +222,8 @@ export class UIFlowElementDirective implements OnInit, OnDestroy {
  * Structural directive for conditional rendering based on density
  */
 @Directive({
-  selector: '[uiflowIf]'
+  selector: '[uiflowIf]',
+  standalone: true
 })
 export class UIFlowIfDirective implements OnInit, OnDestroy {
   @Input() uiflowIf!: string; // category
@@ -275,6 +280,8 @@ export class UIFlowIfDirective implements OnInit, OnDestroy {
  */
 @Component({
   selector: 'uiflow-density-indicator',
+  standalone: true,
+  imports: [CommonModule],
   template: `
     <div class="uiflow-density-indicator" [style]="indicatorStyle">
       <span>{{ area }}: </span>
@@ -332,6 +339,8 @@ export class UIFlowDensityIndicatorComponent implements OnInit, OnDestroy {
  */
 @Component({
   selector: 'uiflow-density-control',
+  standalone: true,
+  imports: [CommonModule],
   template: `
     <div class="uiflow-density-control">
       <label>{{ area }} Density: {{ density }}%</label>
@@ -405,35 +414,33 @@ export class UIFlowDensityControlComponent implements OnInit, OnDestroy {
 }
 
 /**
- * Angular Module for UIFlow
+ * Standalone components and directives for UIFlow
  */
-@NgModule({
-  declarations: [
-    UIFlowElementDirective,
-    UIFlowIfDirective,
-    UIFlowDensityIndicatorComponent,
-    UIFlowDensityControlComponent
-  ],
-  exports: [
-    UIFlowElementDirective,
-    UIFlowIfDirective,
-    UIFlowDensityIndicatorComponent,
-    UIFlowDensityControlComponent
-  ],
-  providers: [
+export const UIFLOW_COMPONENTS = [
+  UIFlowElementDirective,
+  UIFlowIfDirective,
+  UIFlowDensityIndicatorComponent,
+  UIFlowDensityControlComponent
+] as const;
+
+/**
+ * Provide UIFlow services for Angular applications using standalone APIs
+ */
+export function provideUIFlow(config: any = {}): EnvironmentProviders {
+  return makeEnvironmentProviders([
+    { provide: UIFLOW_CONFIG, useValue: config },
     UIFlowService
-  ]
-})
-export class UIFlowModule {
-  static forRoot(config: any = {}) {
-    return {
-      ngModule: UIFlowModule,
-      providers: [
-        { provide: UIFLOW_CONFIG, useValue: config },
-        UIFlowService
-      ]
-    };
-  }
+  ]);
+}
+
+/**
+ * Legacy NgModule for backwards compatibility (deprecated)
+ * @deprecated Use provideUIFlow() and standalone components instead
+ */
+export function provideUIFlowModule() {
+  return {
+    providers: [UIFlowService]
+  };
 }
 
 // Export Angular version for compatibility check

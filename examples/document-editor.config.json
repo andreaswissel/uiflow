@@ -1,0 +1,120 @@
+{
+  "name": "Document Editor UIFlow",
+  "version": "1.0.0",
+  "areas": {
+    "editor": {
+      "defaultDensity": 0.3,
+      "elements": [
+        {
+          "id": "save-btn",
+          "selector": "#save",
+          "category": "basic",
+          "helpText": "Save your document",
+          "metadata": {
+            "priority": "high",
+            "group": "file-operations"
+          }
+        },
+        {
+          "id": "export-btn",
+          "selector": "#export",
+          "category": "advanced", 
+          "helpText": "Export in different formats",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "save-btn",
+              "threshold": 5,
+              "description": "User must save 5 times before seeing export"
+            }
+          ]
+        },
+        {
+          "id": "advanced-export",
+          "selector": "#advanced-export",
+          "category": "expert",
+          "helpText": "Advanced export with custom settings",
+          "dependencies": [
+            {
+              "type": "logical_and",
+              "elements": ["export-btn", "settings-btn"],
+              "description": "Must use both basic export and settings"
+            },
+            {
+              "type": "time_based",
+              "elementId": "export-btn",
+              "timeWindow": "7d",
+              "minUsage": 3,
+              "description": "Regular export user for a week"
+            }
+          ]
+        }
+      ]
+    },
+    "toolbar": {
+      "defaultDensity": 0.4,
+      "elements": [
+        {
+          "id": "format-toolbar",
+          "selector": "#format-toolbar",
+          "category": "advanced",
+          "helpText": "Format your text",
+          "dependencies": [
+            {
+              "type": "sequence",
+              "elements": ["create-doc", "type-text", "select-text"],
+              "description": "User must go through content creation flow"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "rules": [
+    {
+      "name": "Power User Unlock",
+      "trigger": {
+        "type": "usage_pattern",
+        "elements": ["save-btn", "export-btn"],
+        "frequency": "daily",
+        "duration": "1w"
+      },
+      "action": {
+        "type": "unlock_category",
+        "category": "expert",
+        "area": "editor"
+      }
+    },
+    {
+      "name": "Tutorial for New Features",
+      "trigger": {
+        "type": "element_interaction",
+        "elements": ["advanced-export"]
+      },
+      "action": {
+        "type": "show_tutorial",
+        "data": {
+          "tutorial": "advanced-export-guide",
+          "autoStart": true
+        }
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "progressive-onboarding",
+      "name": "Progressive Onboarding",
+      "description": "Gradually reveal features based on user competency",
+      "category": "onboarding",
+      "template": {
+        "trigger": {
+          "type": "usage_pattern",
+          "frequency": "daily"
+        },
+        "action": {
+          "type": "unlock_category"
+        }
+      }
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   output: [
     {
       file: 'dist/uiflow.js',
@@ -22,5 +23,12 @@ export default {
       format: 'es'
     }
   ],
-  plugins: [nodeResolve()]
+  plugins: [
+    typescript({
+      tsconfig: './tsconfig.json',
+      declaration: true,
+      declarationDir: './dist/types'
+    }),
+    nodeResolve()
+  ]
 };

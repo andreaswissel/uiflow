@@ -5,3 +5,4 @@ dist/
 *.log
 AGENT.md
 BRIEFING.md
+.agent

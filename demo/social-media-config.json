@@ -1,0 +1,254 @@
+{
+  "name": "SocialFlow - Smart Social Media Creator",
+  "version": "1.0.0",
+  "areas": {
+    "composer": {
+      "defaultDensity": 0.8,
+      "elements": [
+        {
+          "id": "instagram-platform",
+          "selector": "#instagram-platform",
+          "category": "advanced",
+          "helpText": "Share visual content on Instagram",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "publish-now",
+              "threshold": 2,
+              "description": "Create 2 posts before accessing Instagram"
+            }
+          ]
+        },
+        {
+          "id": "text-tools",
+          "selector": "#text-tools",
+          "category": "advanced",
+          "helpText": "Enhance your posts with AI-powered text tools",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "publish-now",
+              "threshold": 3,
+              "description": "Create 3 posts to unlock text enhancement tools"
+            }
+          ]
+        }
+      ]
+    },
+    "media": {
+      "defaultDensity": 0.3,
+      "elements": [
+        {
+          "id": "media-widget",
+          "selector": "#media-widget",
+          "category": "advanced",
+          "helpText": "Add photos and videos to make your posts more engaging",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "publish-now",
+              "threshold": 2,
+              "description": "Create 2 posts before uploading media"
+            }
+          ]
+        }
+      ]
+    },
+    "scheduling": {
+      "defaultDensity": 0.2,
+      "elements": [
+        {
+          "id": "schedule-widget",
+          "selector": "#schedule-widget",
+          "category": "expert",
+          "helpText": "Schedule your posts for optimal engagement times",
+          "dependencies": [
+            {
+              "type": "logical_and",
+              "elements": ["media-widget", "publish-now"],
+              "description": "Use media uploads and create posts before accessing scheduling"
+            },
+            {
+              "type": "usage_count",
+              "elementId": "publish-now",
+              "threshold": 3,
+              "description": "Create 3 posts to understand scheduling value"
+            }
+          ]
+        }
+      ]
+    },
+    "tools": {
+      "defaultDensity": 0.4,
+      "elements": [
+        {
+          "id": "hashtag-widget",
+          "selector": "#hashtag-widget",
+          "category": "advanced",
+          "helpText": "Boost discoverability with smart hashtag suggestions",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "publish-now",
+              "threshold": 1,
+              "description": "Create your first post to unlock hashtag suggestions"
+            }
+          ]
+        },
+        {
+          "id": "targeting-widget",
+          "selector": "#targeting-widget",
+          "category": "expert",
+          "helpText": "Target specific audiences for better engagement",
+          "dependencies": [
+            {
+              "type": "time_based",
+              "elementId": "publish-now",
+              "timeWindow": "7d",
+              "minUsage": 5,
+              "description": "Create 5 posts in a week to unlock audience targeting"
+            },
+            {
+              "type": "logical_and",
+              "elements": ["schedule-widget", "hashtag-widget"],
+              "description": "Master scheduling and hashtags before advanced targeting"
+            }
+          ]
+        }
+      ]
+    },
+    "analytics": {
+      "defaultDensity": 0.1,
+      "elements": [
+        {
+          "id": "analytics-widget",
+          "selector": "#analytics-widget",
+          "category": "expert",
+          "helpText": "Track performance and optimize your content strategy",
+          "dependencies": [
+            {
+              "type": "sequence",
+              "elements": ["publish-now", "media-widget", "schedule-widget"],
+              "description": "Complete the content creation workflow: post → media → schedule"
+            },
+            {
+              "type": "usage_count",
+              "elementId": "schedule-widget",
+              "threshold": 3,
+              "description": "Schedule 3 posts to unlock analytics insights"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "rules": [
+    {
+      "name": "Content Creator Journey",
+      "trigger": {
+        "type": "usage_pattern",
+        "elements": ["publish-now", "media-widget"],
+        "frequency": "daily",
+        "duration": "3d"
+      },
+      "action": {
+        "type": "unlock_category",
+        "category": "advanced",
+        "area": "tools"
+      }
+    },
+    {
+      "name": "Social Media Manager Unlock",
+      "trigger": {
+        "type": "usage_pattern",
+        "elements": ["schedule-widget", "hashtag-widget", "analytics-widget"],
+        "frequency": "weekly",
+        "duration": "1w"
+      },
+      "action": {
+        "type": "unlock_category",
+        "category": "expert",
+        "area": "tools"
+      }
+    },
+    {
+      "name": "First Media Upload Tutorial",
+      "trigger": {
+        "type": "element_interaction",
+        "elements": ["media-widget"]
+      },
+      "action": {
+        "type": "show_tutorial",
+        "data": {
+          "tutorial": "media-upload-guide",
+          "autoStart": true,
+          "message": "🎉 Great! You've unlocked media uploads. Visual content gets 2.3x more engagement!"
+        }
+      }
+    },
+    {
+      "name": "Scheduling Mastery",
+      "trigger": {
+        "type": "usage_count",
+        "elements": ["schedule-widget"],
+        "threshold": 5
+      },
+      "action": {
+        "type": "show_tutorial",
+        "data": {
+          "tutorial": "optimal-timing-guide",
+          "message": "📊 Pro tip: Your audience is most active between 9-11 AM and 7-9 PM!"
+        }
+      }
+    },
+    {
+      "name": "Power User Recognition",
+      "trigger": {
+        "type": "time_based",
+        "threshold": 20
+      },
+      "action": {
+        "type": "send_event",
+        "data": {
+          "event": "power_user_achieved",
+          "badge": "Social Media Ninja 🥷",
+          "message": "Congratulations! You've mastered SocialFlow!"
+        }
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "beginner-onboarding",
+      "name": "Beginner Onboarding Flow",
+      "description": "Gentle introduction to social media posting",
+      "category": "onboarding",
+      "template": {
+        "trigger": {
+          "type": "usage_pattern",
+          "frequency": "daily"
+        },
+        "action": {
+          "type": "unlock_element"
+        }
+      }
+    },
+    {
+      "id": "content-creator-boost",
+      "name": "Content Creator Acceleration",
+      "description": "Fast-track for experienced content creators",
+      "category": "progressive_disclosure",
+      "template": {
+        "trigger": {
+          "type": "usage_pattern",
+          "frequency": "daily",
+          "duration": "2d"
+        },
+        "action": {
+          "type": "unlock_category",
+          "category": "advanced"
+        }
+      }
+    }
+  ]
+}

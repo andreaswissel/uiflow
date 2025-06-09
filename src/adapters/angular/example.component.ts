@@ -3,12 +3,25 @@
  */
 
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { UIFlowService } from './index';
+import { 
+  UIFlowService, 
+  UIFLOW_COMPONENTS,
+  UIFlowElementDirective,
+  UIFlowIfDirective,
+  UIFlowDensityIndicatorComponent,
+  UIFlowDensityControlComponent
+} from './index';
 
 @Component({
   selector: 'app-uiflow-example',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ...UIFLOW_COMPONENTS
+  ],
   template: `
     <div class="app">
       <!-- Header with categorized elements -->
@@ -333,35 +346,32 @@ export class UIFlowExampleComponent implements OnInit, OnDestroy {
 }
 
 /**
- * Example module configuration
+ * Standalone component bootstrap (Angular v19 ready)
+ * 
+ * Usage in main.ts:
+ * ```typescript
+ * import { bootstrapApplication } from '@angular/platform-browser';
+ * import { UIFlowExampleComponent } from './uiflow-example.component';
+ * import { UIFlowService } from './uiflow/angular';
+ * 
+ * bootstrapApplication(UIFlowExampleComponent, {
+ *   providers: [
+ *     UIFlowService,
+ *     { 
+ *       provide: 'UIFLOW_CONFIG', 
+ *       useValue: { 
+ *         userId: 'user-123', 
+ *         categories: ['basic', 'advanced', 'expert'],
+ *         learningRate: 0.1,
+ *         dataSources: {
+ *           api: { endpoint: 'https://api.example.com', primary: true }
+ *         }
+ *       } 
+ *     }
+ *   ]
+ * });
+ * ```
  */
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { UIFlowModule } from './index';
-
-@NgModule({
-  declarations: [
-    UIFlowExampleComponent
-  ],
-  imports: [
-    CommonModule,
-    UIFlowModule.forRoot({
-      userId: 'user-123',
-      categories: ['basic', 'advanced', 'expert'],
-      learningRate: 0.1,
-      dataSources: {
-        api: { 
-          endpoint: 'https://api.example.com', 
-          primary: true 
-        }
-      }
-    })
-  ],
-  exports: [
-    UIFlowExampleComponent
-  ]
-})
-export class UIFlowExampleModule { }
 
 /**
  * Example of custom directive for feature discovery
@@ -369,7 +379,8 @@ export class UIFlowExampleModule { }
 import { Directive, Input, OnInit } from '@angular/core';
 
 @Directive({
-  selector: '[uiflowAutoDiscover]'
+  selector: '[uiflowAutoDiscover]',
+  standalone: true
 })
 export class UIFlowAutoDiscoverDirective implements OnInit {
   @Input() uiflowAutoDiscover: string = 'default'; // area

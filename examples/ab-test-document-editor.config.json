@@ -1,0 +1,146 @@
+{
+  "name": "Document Editor A/B Test",
+  "version": "1.0.0",
+  "abTest": {
+    "enabled": true,
+    "testId": "editor-progressive-disclosure-v1",
+    "variants": [
+      {
+        "id": "control",
+        "name": "Control - Conservative",
+        "description": "Conservative approach with higher thresholds",
+        "configuration": {
+          "areas": {
+            "editor": {
+              "defaultDensity": 0.2,
+              "elements": [
+                {
+                  "id": "export-btn",
+                  "selector": "#export",
+                  "category": "advanced",
+                  "dependencies": [
+                    { "type": "usage_count", "elementId": "save-btn", "threshold": 10 }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "aggressive",
+        "name": "Aggressive - Quick Unlock",
+        "description": "Aggressive approach with lower thresholds",
+        "configuration": {
+          "areas": {
+            "editor": {
+              "defaultDensity": 0.4,
+              "elements": [
+                {
+                  "id": "export-btn",
+                  "selector": "#export",
+                  "category": "advanced",
+                  "dependencies": [
+                    { "type": "usage_count", "elementId": "save-btn", "threshold": 3 }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "relationship-based",
+        "name": "Relationship-Based",
+        "description": "Focus on logical relationships between features",
+        "configuration": {
+          "areas": {
+            "editor": {
+              "defaultDensity": 0.3,
+              "elements": [
+                {
+                  "id": "export-btn",
+                  "selector": "#export",
+                  "category": "advanced",
+                  "dependencies": [
+                    { 
+                      "type": "sequence", 
+                      "elements": ["create-doc", "edit-content", "save-btn"],
+                      "description": "Complete document workflow first"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "rules": [
+            {
+              "name": "Smart Tutorial Trigger",
+              "trigger": {
+                "type": "element_interaction",
+                "elements": ["export-btn"]
+              },
+              "action": {
+                "type": "show_tutorial",
+                "data": {
+                  "tutorial": "export-guide",
+                  "autoStart": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "trafficAllocation": [33, 33, 34],
+    "metrics": [
+      "feature_adoption",
+      "time_to_expert",
+      "user_satisfaction",
+      "tutorial_completion",
+      "advanced_feature_usage"
+    ]
+  },
+  "areas": {
+    "editor": {
+      "defaultDensity": 0.3,
+      "elements": [
+        {
+          "id": "save-btn",
+          "selector": "#save",
+          "category": "basic",
+          "helpText": "Save your document"
+        },
+        {
+          "id": "export-btn",
+          "selector": "#export",
+          "category": "advanced", 
+          "helpText": "Export in different formats",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "save-btn",
+              "threshold": 5
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "rules": [
+    {
+      "name": "Power User Detection",
+      "trigger": {
+        "type": "usage_pattern",
+        "elements": ["save-btn", "export-btn"],
+        "frequency": "daily",
+        "duration": "1w"
+      },
+      "action": {
+        "type": "unlock_category",
+        "category": "expert",
+        "area": "editor"
+      }
+    }
+  ]
+}
