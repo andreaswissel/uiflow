@@ -167,14 +167,16 @@ export class SegmentDataSource extends BaseDataSource {
   }
 
   // Segment-specific methods
-  identifyUser(userId, traits = {}) {
-    if (!this.isReady()) return;
+  async identifyUser(userId, traits = {}) {
+    if (!this.isReady()) return Promise.resolve();
     
     this.analytics.identify(userId, {
       ...traits,
       uiflow_enabled: true,
       uiflow_initialized_at: Date.now()
     });
+    
+    return Promise.resolve();
   }
 
   trackPageView(userId, page = {}) {

@@ -34,7 +34,7 @@ export interface ElementData {
   visible: boolean;
   interactions: number;
   lastUsed: number | null;
-  helpText?: string;
+  helpText?: string | undefined;
   isNew?: boolean;
   dependencies?: ElementDependency[];
 }
@@ -46,9 +46,9 @@ export interface AreaData {
 }
 
 export interface ElementOptions {
-  helpText?: string;
+  helpText?: string | undefined;
   isNew?: boolean;
-  dependencies?: ElementDependency[];
+  dependencies?: ElementDependency[] | undefined;
 }
 
 export interface ElementDependency {
@@ -221,13 +221,17 @@ export interface EventDetail {
   tutorial?: string;
   config?: any;
   testVariant?: string;
-  abTestVariant?: string;
+  abTestVariant?: string | undefined;
   interactionRate?: number;
   metric?: string;
-  trigger?: string;
+  trigger?: string | RuleTrigger;
   elementsUnlocked?: number;
   autoStart?: boolean;
   dependencies?: ElementDependency[];
+  advancedFeatureUsage?: number;
+  value?: number;
+  totalSequenceLength?: number;
+  action?: RuleAction;
 }
 
 export interface DataSourceInterface {
@@ -286,9 +290,9 @@ export interface UIFlowInstance {
   getAreaCount(): number;
   getElementsForArea(area: AreaId): ElementData[];
   isInitialized(): boolean;
-  getNewVisibleElements(): Array<{ elementId: ElementId; helpText?: string }>;
+  getNewVisibleElements(): Array<{ elementId: ElementId; helpText: string | undefined }>;
   getVisibleElementsWithHelp(): Array<{ elementId: ElementId; helpText: string }>;
-  getVisibleElementsSorted(): Array<{ elementId: ElementId; category: Category; helpText?: string }>;
+  getVisibleElementsSorted(): Array<{ elementId: ElementId; category: Category; helpText: string | undefined }>;
   
   // Core methods
   init(config?: Partial<UIFlowConfig>): Promise<UIFlowInstance>;

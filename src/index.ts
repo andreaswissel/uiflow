@@ -634,7 +634,7 @@ export class UIFlow implements UIFlowInstance {
   /**
    * Get elements for demo features (controlled access)
    */
-  getNewVisibleElements(): Array<{ elementId: ElementId; helpText?: string }> {
+  getNewVisibleElements(): Array<{ elementId: ElementId; helpText: string | undefined }> {
     return Array.from(this.elements.entries())
       .filter(([_, data]) => data.isNew && data.visible)
       .map(([elementId, data]) => ({ elementId, helpText: data.helpText }));
@@ -646,7 +646,7 @@ export class UIFlow implements UIFlowInstance {
       .map(([elementId, data]) => ({ elementId, helpText: data.helpText! }));
   }
 
-  getVisibleElementsSorted(): Array<{ elementId: ElementId; category: Category; helpText?: string }> {
+  getVisibleElementsSorted(): Array<{ elementId: ElementId; category: Category; helpText: string | undefined }> {
     return Array.from(this.elements.entries())
       .filter(([_, data]) => data.visible && data.helpText)
       .sort(([, a], [, b]) => {
