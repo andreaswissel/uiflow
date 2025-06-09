@@ -1,6 +1,6 @@
 {
   "name": "@andreaswissel/uiflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Adaptive UI density management library with progressive disclosure, element dependencies, A/B testing, and intelligent behavior-based adaptation",
   "main": "dist/uiflow.js",
   "module": "dist/uiflow.esm.js",
@@ -17,7 +17,7 @@
       "import": "./src/adapters/react/index.js"
     },
     "./adapters/vue": {
-      "types": "./src/adapters/vue/index.d.ts", 
+      "types": "./src/adapters/vue/index.d.ts",
       "import": "./src/adapters/vue/index.js"
     },
     "./adapters/angular": {
@@ -48,7 +48,24 @@
     "prepublishOnly": "npm run clean && npm run build && npm run test",
     "postversion": "git push && git push --tags"
   },
-  "keywords": ["ui", "density", "adaptive", "behavior", "progressive-disclosure", "dependencies", "ab-testing", "ux", "javascript", "typescript", "react", "vue", "angular", "user-experience", "ui-automation", "adaptive-ui"],
+  "keywords": [
+    "ui",
+    "density",
+    "adaptive",
+    "behavior",
+    "progressive-disclosure",
+    "dependencies",
+    "ab-testing",
+    "ux",
+    "javascript",
+    "typescript",
+    "react",
+    "vue",
+    "angular",
+    "user-experience",
+    "ui-automation",
+    "adaptive-ui"
+  ],
   "author": "Andreas Wissel <andreas@wissel.dev>",
   "license": "CC-BY-NC-4.0",
   "repository": {
