@@ -1,6 +1,6 @@
 {
   "name": "@andreaswissel/uiflow",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Adaptive UI density management library with progressive disclosure, element dependencies, A/B testing, and intelligent behavior-based adaptation",
   "main": "dist/uiflow.js",
   "module": "dist/uiflow.esm.js",
