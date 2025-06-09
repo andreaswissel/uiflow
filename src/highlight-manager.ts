@@ -188,6 +188,9 @@ export class HighlightManager {
    * Create and position tooltip
    */
   private createTooltip(element: HTMLElement, text: string): void {
+    // Guard against missing document (test environment)
+    if (typeof document === 'undefined') return;
+    
     // Remove existing tooltip
     const existingTooltip = element.querySelector('.uiflow-tooltip');
     if (existingTooltip) {
@@ -219,6 +222,9 @@ export class HighlightManager {
    * Position tooltip relative to element
    */
   private positionTooltip(element: HTMLElement, tooltip: HTMLElement): void {
+    // Guard against missing window (test environment)
+    if (typeof window === 'undefined') return;
+    
     const rect = element.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
     
@@ -246,7 +252,7 @@ export class HighlightManager {
    * Inject CSS styles for highlights and tooltips
    */
   private injectHighlightStyles(): void {
-    if (this.highlightStyles) return;
+    if (this.highlightStyles || typeof document === 'undefined') return;
 
     const styles = `
       .uiflow-highlight-default {

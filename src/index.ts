@@ -40,6 +40,7 @@ export class UIFlow implements UIFlowInstance {
   private usageHistory: Map<string, number[]>;
   private elementUsageHistory: Map<ElementId, number[]>;
   private storedElementData: Map<ElementId, any>;
+  private unlockedCategories: Map<string, boolean>; // Track unlocked categories per area
   private initialized: boolean;
   
   private syncTimer: number | null;
@@ -71,6 +72,7 @@ export class UIFlow implements UIFlowInstance {
     this.usageHistory = new Map();
     this.elementUsageHistory = new Map();
     this.storedElementData = new Map();
+    this.unlockedCategories = new Map();
     this.initialized = false;
     this.syncTimer = null;
     this.dataManager = new DataSourceManager();
@@ -196,7 +198,11 @@ export class UIFlow implements UIFlowInstance {
    */
   shouldShowElement(category: Category, area: AreaId = 'default'): boolean {
     // Only basic elements are visible by default
-    return category === 'basic';
+    if (category === 'basic') return true;
+    
+    // Check if this category has been unlocked for this area
+    const key = `${area}:${category}`;
+    return this.unlockedCategories.get(key) ?? false;
   }
 
   /**
@@ -299,6 +305,10 @@ export class UIFlow implements UIFlowInstance {
   }
 
   unlockCategory(category: Category, area: AreaId): void {
+    // Track that this category is unlocked for this area
+    const key = `${area}:${category}`;
+    this.unlockedCategories.set(key, true);
+    
     this.dependencyEngine.unlockCategory(category, area);
     this.updateAreaElementsVisibility(area);
   }
@@ -372,6 +382,12 @@ export class UIFlow implements UIFlowInstance {
       
       // Reset journey data
       this.journeyAnalyzer.resetArea(area);
+      
+      // Reset unlocked categories for this area
+      for (const category of this.config.categories) {
+        const key = `${area}:${category}`;
+        this.unlockedCategories.delete(key);
+      }
       
       this.updateAreaElementsVisibility(area);
       this.saveData();

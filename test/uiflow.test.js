@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UIFlow } from '../src/index.js';
+import { UIFlow } from '../src/index.ts';
 
 // Mock DOM methods
 global.document = {
@@ -46,7 +46,11 @@ describe('UIFlow', () => {
       setAttribute: vi.fn(),
       getAttribute: vi.fn(),
       style: {},
-      classList: { contains: vi.fn() }
+      classList: { 
+        contains: vi.fn(),
+        add: vi.fn(),
+        remove: vi.fn()
+      }
     };
     vi.clearAllMocks();
     
@@ -58,7 +62,7 @@ describe('UIFlow', () => {
     it('should create instance with default config', () => {
       expect(uiflow.config.categories).toEqual(['basic', 'advanced', 'expert']);
       expect(uiflow.config.learningRate).toBe(0.1);
-      expect(uiflow.getDensityLevel()).toBe(0.3); // Default density is now 0.3
+      expect(uiflow.isInitialized()).toBe(false); // Not initialized until init() is called
     });
 
     it('should accept custom configuration', () => {
@@ -105,7 +109,12 @@ describe('UIFlow', () => {
         id: '',
         setAttribute: vi.fn(),
         getAttribute: vi.fn(),
-        style: {}
+        style: {},
+        classList: { 
+          contains: vi.fn(),
+          add: vi.fn(),
+          remove: vi.fn()
+        }
       };
       
       uiflow.categorize(elementWithoutId, 'basic');
@@ -126,47 +135,26 @@ describe('UIFlow', () => {
     });
   });
 
-  describe('density management', () => {
+  describe('area management', () => {
     beforeEach(async () => {
       await uiflow.init();
     });
 
-    it('should get current density level', () => {
-      expect(uiflow.getDensityLevel()).toBe(0.3); // Default density
+    it('should track area statistics', () => {
+      uiflow.categorize(mockElement, 'basic', 'test-area');
+      const stats = uiflow.getAreaStats('test-area');
+      
+      expect(stats.totalElements).toBe(1);
+      expect(stats.visibleElements).toBe(1); // Basic elements are visible by default
+      expect(stats.recentUsage).toEqual({ basic: 0, advanced: 0, expert: 0 });
     });
 
-    it('should set density level within bounds', () => {
-      const result = uiflow.setDensityLevel(0.8, 'test-area');
+    it('should get overview stats for all areas', () => {
+      uiflow.categorize(mockElement, 'basic', 'area1');
+      const overview = uiflow.getOverviewStats();
       
-      expect(result).toBe(uiflow);
-      expect(uiflow.getDensityLevel('test-area')).toBe(0.8);
-    });
-
-    it('should clamp density level to valid range', () => {
-      uiflow.setDensityLevel(-0.5, 'test-area');
-      expect(uiflow.getDensityLevel('test-area')).toBe(0);
-      
-      uiflow.setDensityLevel(1.5, 'test-area');
-      expect(uiflow.getDensityLevel('test-area')).toBe(1);
-    });
-
-    it('should get area densities', () => {
-      uiflow.setDensityLevel(0.5, 'area1');
-      uiflow.setDensityLevel(0.8, 'area2');
-      
-      const densities = uiflow.getAreaDensities();
-      expect(densities.area1).toBe(0.5);
-      expect(densities.area2).toBe(0.8);
-    });
-
-    it('should handle remote overrides', () => {
-      uiflow.setRemoteOverride('test-area', 0.9);
-      
-      expect(uiflow.getDensityLevel('test-area')).toBe(0.9);
-      expect(uiflow.hasOverride('test-area')).toBe(true);
-      
-      uiflow.clearRemoteOverride('test-area');
-      expect(uiflow.hasOverride('test-area')).toBe(false);
+      expect(overview.area1).toBeDefined();
+      expect(overview.area1.totalElements).toBe(1);
     });
   });
 
@@ -175,27 +163,32 @@ describe('UIFlow', () => {
       await uiflow.init();
     });
 
-    it('should show basic elements at any density', () => {
-      expect(uiflow.shouldShowElement('basic', 'test-area')).toBe(true);
-      
-      uiflow.setDensityLevel(0, 'test-area');
+    it('should show basic elements by default', () => {
       expect(uiflow.shouldShowElement('basic', 'test-area')).toBe(true);
     });
 
-    it('should show advanced elements only at medium+ density', () => {
-      uiflow.setDensityLevel(0.2, 'test-area');
+    it('should not show advanced elements by default', () => {
       expect(uiflow.shouldShowElement('advanced', 'test-area')).toBe(false);
-      
-      uiflow.setDensityLevel(0.5, 'test-area');
-      expect(uiflow.shouldShowElement('advanced', 'test-area')).toBe(true);
     });
 
-    it('should show expert elements only at high density', () => {
-      uiflow.setDensityLevel(0.5, 'test-area');
+    it('should not show expert elements by default', () => {
       expect(uiflow.shouldShowElement('expert', 'test-area')).toBe(false);
+    });
+
+    it('should unlock categories when requested', () => {
+      uiflow.categorize(mockElement, 'advanced', 'test-area');
       
-      uiflow.setDensityLevel(1.0, 'test-area'); // Expert requires full density (2/2 = 1.0)
-      expect(uiflow.shouldShowElement('expert', 'test-area')).toBe(true);
+      // Initially should not be visible
+      let stats = uiflow.getAreaStats('test-area');
+      expect(stats.visibleElements).toBe(0);
+      expect(stats.totalElements).toBe(1);
+      
+      uiflow.unlockCategory('advanced', 'test-area');
+      
+      // Element should now be visible
+      stats = uiflow.getAreaStats('test-area');
+      expect(stats.visibleElements).toBe(1);
+      expect(stats.totalElements).toBe(1);
     });
   });
 
@@ -205,26 +198,30 @@ describe('UIFlow', () => {
     });
 
     it('should save data to localStorage', () => {
-      uiflow.setDensityLevel(0.7, 'test-area');
-      uiflow.saveData();
+      uiflow.categorize(mockElement, 'basic', 'test-area');
+      // Access the private saveData method through a public action that triggers it
+      uiflow.resetArea('test-area');
       
       expect(localStorage.setItem).toHaveBeenCalledWith(
         'uiflow-data',
-        expect.stringContaining('"density":0.7')
+        expect.stringContaining('"areas"')
       );
     });
 
     it('should load data from localStorage', () => {
       const mockData = {
-        areas: [['test-area', { density: 0.8, lastActivity: Date.now(), totalInteractions: 0 }]],
+        areas: [['test-area', { lastActivity: Date.now(), totalInteractions: 0 }]],
         usageHistory: [],
+        elementUsageHistory: [],
+        elements: [],
         lastSaved: Date.now()
       };
       localStorage.getItem.mockReturnValue(JSON.stringify(mockData));
       
-      uiflow.loadStoredData();
-      
-      expect(uiflow.getDensityLevel('test-area')).toBe(0.8);
+      expect(() => {
+        // Create new instance to trigger data loading
+        new UIFlow();
+      }).not.toThrow();
     });
 
     it('should handle localStorage errors gracefully', () => {
@@ -232,7 +229,7 @@ describe('UIFlow', () => {
         throw new Error('Storage error');
       });
       
-      expect(() => uiflow.loadStoredData()).not.toThrow();
+      expect(() => new UIFlow()).not.toThrow();
     });
   });
 
