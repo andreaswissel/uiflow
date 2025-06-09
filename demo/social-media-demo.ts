@@ -13,6 +13,9 @@ let mediaUploaded = 0;
 let postsScheduled = 0;
 let currentCharCount = 0;
 
+// Demo mode control
+let demoMode: 'unlock' | 'visibility' = 'visibility';
+
 // Sync demo state with UIFlow persistent element data
 function initializeDemoStateFromUIFlow() {
   // Debug: Check localStorage first
@@ -67,6 +70,100 @@ function initializeDemoStateFromUIFlow() {
   }
   
   console.log('📊 Demo state initialized from UIFlow:', { postsCreated, mediaUploaded, postsScheduled });
+}
+
+// Setup demo mode toggle
+function setupDemoModeToggle() {
+  const toggle = document.getElementById('demo-mode-toggle') as HTMLInputElement;
+  const modeLabel = document.getElementById('demo-mode-label')!;
+  
+  if (toggle) {
+    // Set initial state
+    toggle.checked = demoMode === 'unlock';
+    updateModeLabel();
+    
+    toggle.addEventListener('change', () => {
+      demoMode = toggle.checked ? 'unlock' : 'visibility';
+      updateModeLabel();
+      applyDemoMode();
+      showNotification(`Mode switched to: ${demoMode}`, 'info');
+    });
+  }
+  
+  function updateModeLabel() {
+    if (modeLabel) {
+      modeLabel.textContent = demoMode === 'unlock' 
+        ? 'Unlock Mode (elements always visible, dependencies control interactivity)'
+        : 'Visibility Mode (dependencies control element visibility)';
+    }
+  }
+}
+
+// Apply the current demo mode to all elements
+function applyDemoMode() {
+  const elementIds = [
+    'instagram-platform', 'text-tools', 'media-widget', 
+    'schedule-widget', 'hashtag-widget', 'targeting-widget', 'analytics-widget'
+  ];
+  
+  console.log('🎛️ Applying demo mode:', demoMode);
+  
+  elementIds.forEach(elementId => {
+    const element = document.getElementById(elementId);
+    const elementData = (uiflow as any).elements.get(elementId);
+    
+    if (element && elementData) {
+      // Clear UIFlow's data attributes to avoid conflicts
+      element.removeAttribute('data-uiflow-visible');
+      
+      if (demoMode === 'unlock') {
+        // Unlock mode: always show elements, control interactivity
+        element.style.display = '';
+        element.classList.remove('hidden');
+        
+        const dependenciesMet = uiflow.validateDependencies(elementId);
+        element.style.opacity = dependenciesMet ? '1' : '0.5';
+        element.style.pointerEvents = dependenciesMet ? 'auto' : 'none';
+        
+        // Add visual indicator for locked state
+        const lockOverlay = element.querySelector('.lock-overlay');
+        if (!dependenciesMet && !lockOverlay) {
+          const overlay = document.createElement('div');
+          overlay.className = 'lock-overlay';
+          overlay.style.cssText = `
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.1); z-index: 1;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; pointer-events: none;
+          `;
+          overlay.textContent = '🔒';
+          element.style.position = 'relative';
+          element.appendChild(overlay);
+        } else if (dependenciesMet && lockOverlay) {
+          lockOverlay.remove();
+        }
+      } else {
+        // Visibility mode: control element visibility based on dependencies
+        element.style.opacity = '1';
+        element.style.pointerEvents = 'auto';
+        
+        // Remove lock overlay if it exists
+        const lockOverlay = element.querySelector('.lock-overlay');
+        if (lockOverlay) lockOverlay.remove();
+        
+        // Manually control visibility based on dependencies (not UIFlow)
+        const dependenciesMet = uiflow.validateDependencies(elementId);
+        console.log(`🔍 ${elementId}: dependencies met = ${dependenciesMet}`);
+        if (dependenciesMet) {
+          element.style.display = '';
+          element.classList.remove('hidden');
+        } else {
+          element.style.display = 'none';
+          element.classList.add('hidden');
+        }
+      }
+    }
+  });
 }
 
 // Helper function to simulate element clicks for UIFlow integration
@@ -131,10 +228,17 @@ async function initializeSocialFlow() {
     // Setup character counter
     setupCharacterCounter();
     
+    // Setup demo mode toggle
+    setupDemoModeToggle();
+    
     // Initial UI update
-    updateProgress();
-    updateStats();
-    // UIFlow handles visibility automatically via configuration
+  updateProgress();
+  updateStats();
+  
+  // Apply initial demo mode after elements are registered
+  setTimeout(() => {
+    applyDemoMode();
+  }, 200);
     
     console.log('🚀 SocialFlow initialized with smart progressive disclosure!');
     
@@ -183,7 +287,11 @@ function initializeManually() {
   setupEventListeners();
   updateProgress();
   updateStats();
-  // UIFlow handles visibility automatically via configuration
+  
+  // Apply initial demo mode after elements are registered
+  setTimeout(() => {
+    applyDemoMode();
+  }, 200);
 }
 
 // Setup all event listeners
@@ -298,7 +406,11 @@ function updateCharacterCount() {
   // Update UI
   updateProgress();
   updateStats();
-  // UIFlow handles visibility automatically after interactions
+  
+  // Apply demo mode to maintain consistent state
+  setTimeout(() => {
+    applyDemoMode();
+  }, 50);
   
   // Track metrics
   uiflow.trackABTestMetric('posts_created');
@@ -496,29 +608,38 @@ function updateCharacterCount() {
       
       // Small delay for schedule-widget dependencies
       setTimeout(() => {
-        // 6. Heavy scheduling usage (satisfies targeting logical_and requirement)
-        for (let i = 0; i < 15; i++) {
+      // 6. Trigger sequence for analytics: publish → media → schedule
+      simulateElementClick('publish-now');
+      setTimeout(() => {
+        simulateElementClick('media-widget');
+        setTimeout(() => {
           simulateElementClick('schedule-widget');
+          
+        // 7. Heavy scheduling usage (satisfies targeting logical_and requirement)
+        for (let i = 0; i < 14; i++) {
+        simulateElementClick('schedule-widget');
         }
         
         // Small delay for targeting-widget to become available
         setTimeout(() => {
-          // 7. Targeting widget (needs: 5 posts in 7d + schedule + hashtag usage)
+        // 8. Targeting widget (needs: 5 posts in 7d + schedule + hashtag usage)
           for (let i = 0; i < 3; i++) {
             simulateElementClick('targeting-widget');
           }
           
-          // 8. Analytics widget (expert level)
+        // 9. Analytics widget should now be available (sequence + usage count met)
           for (let i = 0; i < 2; i++) {
-            simulateElementClick('analytics-widget');
-          }
-          
-          // Show notification after all simulation is complete
-          setTimeout(() => {
-            showNotification(`🎭 Simulated ${userType} behavior - watch the UI adapt!`, 'info');
-          }, 100);
-        }, 200);
-      }, 100);
+              simulateElementClick('analytics-widget');
+              }
+                
+                // Show notification after all simulation is complete
+                setTimeout(() => {
+                  showNotification(`🎭 Simulated ${userType} behavior - watch the UI adapt!`, 'info');
+                }, 100);
+              }, 200);
+            }, 50);
+          }, 50);
+        }, 100);
     }, 100);
   } else {
     postsCreated = 1;
@@ -539,7 +660,11 @@ function updateCharacterCount() {
   
   updateProgress();
   updateStats();
-  // UIFlow handles visibility automatically through configuration
+  
+  // Apply the current demo mode after simulation with longer delay for complex simulations
+  setTimeout(() => {
+    applyDemoMode();
+  }, userType === 'social-manager' ? 800 : 200);
   
   // Notification is now shown after simulation completes (moved to timeouts above)
 };
@@ -549,14 +674,7 @@ function updateCharacterCount() {
   mediaUploaded = 0;
   postsScheduled = 0;
   
-  // Reset UIFlow areas
-  uiflow.resetArea('composer');
-  uiflow.resetArea('media');
-  uiflow.resetArea('scheduling');
-  uiflow.resetArea('tools');
-  //uiflow.resetArea('analytics');
-  
-  // Reset element interaction counts directly for complete reset
+  // Only reset interaction counts, don't let UIFlow control visibility
   const elementsToReset = [
     'publish-now', 'instagram-platform', 'text-tools', 
     'media-widget', 'schedule-widget', 'hashtag-widget', 
@@ -568,8 +686,7 @@ function updateCharacterCount() {
     if (elementData) {
       elementData.interactions = 0;
       elementData.lastUsed = null;
-      elementData.visible = elementId === 'publish-now'; // Only publish-now should be visible initially
-      (uiflow as any).updateElementVisibility(elementId);
+      // Don't touch visibility - let demo mode handle it completely
     }
   });
   
@@ -580,6 +697,9 @@ function updateCharacterCount() {
   
   updateProgress();
   updateStats();
+  
+  // Apply the demo mode after reset - this will handle all visibility/interactivity
+  applyDemoMode();
   
   showNotification('🔄 Progress reset - start your journey again!', 'info');
 };

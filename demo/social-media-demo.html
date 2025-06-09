@@ -378,6 +378,64 @@
             background: #edf2f7;
         }
         
+        .mode-toggle-container {
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: #2d3748;
+        }
+        
+        .toggle-label input[type="checkbox"] {
+            display: none;
+        }
+        
+        .toggle-slider {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #cbd5e0;
+            border-radius: 12px;
+            margin-right: 8px;
+            transition: background-color 0.3s;
+        }
+        
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-label input[type="checkbox"]:checked + .toggle-slider {
+            background: #4299e1;
+        }
+        
+        .toggle-label input[type="checkbox"]:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+        
+        .mode-description {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -406,6 +464,14 @@
         <!-- Demo Controls -->
         <div class="demo-controls">
             <h3>🎮 Demo Controls</h3>
+            <div class="mode-toggle-container">
+                <label class="toggle-label">
+                    <input type="checkbox" id="demo-mode-toggle" />
+                    <span class="toggle-slider"></span>
+                    Progressive UI Mode
+                </label>
+                <p id="demo-mode-label" class="mode-description">Visibility Mode (dependencies control element visibility)</p>
+            </div>
             <button class="demo-btn" onclick="simulateUser('beginner')">👶 Simulate Beginner</button>
             <button class="demo-btn" onclick="simulateUser('content-creator')">✨ Simulate Content Creator</button>
             <button class="demo-btn" onclick="simulateUser('social-manager')">💼 Simulate Social Manager</button>
