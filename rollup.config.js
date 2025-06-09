@@ -27,7 +27,12 @@ export default {
     typescript({
       tsconfig: './tsconfig.json',
       declaration: true,
-      declarationDir: './dist/types'
+      declarationDir: './dist/types',
+      // Suppress TypeScript warnings for Angular adapters (peer dependency warnings)
+      noEmitOnError: false,
+      compilerOptions: {
+        skipLibCheck: true
+      }
     }),
     nodeResolve()
   ]

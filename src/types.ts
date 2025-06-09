@@ -232,6 +232,7 @@ export interface EventDetail {
   value?: number;
   totalSequenceLength?: number;
   action?: RuleAction;
+  recentActivity?: number;
 }
 
 export interface DataSourceInterface {
