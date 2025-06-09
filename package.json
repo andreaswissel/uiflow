@@ -1,6 +1,6 @@
 {
   "name": "@andreaswissel/uiflow",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Adaptive UI density management library with progressive disclosure, element dependencies, A/B testing, and intelligent behavior-based adaptation",
   "main": "dist/uiflow.js",
   "module": "dist/uiflow.esm.js",
@@ -41,7 +41,6 @@
     "test:coverage": "vitest --coverage",
     "typecheck": "tsc --noEmit",
     "typecheck:angular": "echo '🚧 Angular adapter typecheck (peer dependency warnings expected):' && tsc --noEmit --skipLibCheck src/adapters/angular/index.ts || echo '⚠️  Expected peer dependency warnings - Angular adapters work correctly when Angular is installed'",
-
     "clean": "rm -rf dist coverage .nyc_output",
     "docs:dev": "vite serve docs",
     "demo:build": "vite build demo --outDir demo-dist",
