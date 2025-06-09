@@ -130,13 +130,4 @@ function simulateElementClick(elementId) {
 - ❌ Imperative interaction tracking instead of declarative rules
 - ❌ Framework-specific implementations in the core engine
 
-## Migration Path
-
-When moving from API-driven to configuration-driven:
-
-1. **Extract hardcoded rules** into JSON configuration
-2. **Replace API calls** with proper DOM element setup
-3. **Update simulations** to use DOM events instead of direct calls
-4. **Test thoroughly** with real user interaction patterns
-
-This architecture ensures UIFlow remains a **configuration-first, framework-agnostic adaptive UI engine** that scales from simple use cases to complex enterprise applications.
+This architecture ensures UIFlow remains a **configuration-first, framework-agnostic progressive disclosure engine** that scales from simple use cases to complex enterprise applications.

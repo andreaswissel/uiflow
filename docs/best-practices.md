@@ -686,21 +686,4 @@ const shouldShow = uiflow
   : true; // Show all features if UIFlow unavailable
 ```
 
-## Migration Strategies
-
-### From Static UI
-
-1. **Identify Complexity Levels**: Audit existing features
-2. **Choose Areas**: Group related functionality  
-3. **Gradual Implementation**: Start with one area
-4. **User Testing**: Validate categorization decisions
-5. **Monitor & Adjust**: Use analytics to refine
-
-### From Other Adaptive Systems
-
-1. **Map Existing Logic**: Translate current rules
-2. **Preserve User Preferences**: Import existing settings
-3. **A/B Test**: Compare old vs new systems
-4. **Gradual Rollout**: Phase the transition
-
 Remember: UIFlow should enhance, not complicate, the user experience. Start simple, measure results, and iterate based on real user behavior.

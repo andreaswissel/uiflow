@@ -689,8 +689,8 @@ import {
   UIFLOW_COMPONENTS 
 } from 'uiflow/adapters/angular';
 
-// Legacy module approach (deprecated)
-import { UIFlowModule } from 'uiflow/adapters/angular';
+// Modern standalone approach
+import { UIFlowDirective } from 'uiflow/adapters/angular';
 ```
 
 See [Framework Adapters Documentation](./framework-adapters.md) for detailed usage.
