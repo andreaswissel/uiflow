@@ -554,7 +554,7 @@ function updateCharacterCount() {
   uiflow.resetArea('media');
   uiflow.resetArea('scheduling');
   uiflow.resetArea('tools');
-  uiflow.resetArea('analytics');
+  //uiflow.resetArea('analytics');
   
   // Reset element interaction counts directly for complete reset
   const elementsToReset = [

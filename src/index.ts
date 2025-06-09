@@ -366,7 +366,7 @@ export class UIFlow implements UIFlowInstance {
   /**
    * Reset area to initial state
    */
-  resetArea(area: AreaId): void {
+  resetArea(area: AreaId, preserveUnlockedCategories: boolean = false): void {
     const areaData = this.areas.get(area);
     if (areaData) {
       areaData.totalInteractions = 0;
@@ -383,10 +383,12 @@ export class UIFlow implements UIFlowInstance {
       // Reset journey data
       this.journeyAnalyzer.resetArea(area);
       
-      // Reset unlocked categories for this area
-      for (const category of this.config.categories) {
-        const key = `${area}:${category}`;
-        this.unlockedCategories.delete(key);
+      // Reset unlocked categories for this area (unless preserving them)
+      if (!preserveUnlockedCategories) {
+        for (const category of this.config.categories) {
+          const key = `${area}:${category}`;
+          this.unlockedCategories.delete(key);
+        }
       }
       
       this.updateAreaElementsVisibility(area);
@@ -524,7 +526,7 @@ export class UIFlow implements UIFlowInstance {
     const data = this.elements.get(elementId);
     if (!data) return;
 
-    // Use dependency-based visibility if element has dependencies, otherwise use density-based
+    // Use dependency-based visibility if element has dependencies, otherwise use category-based
     const shouldShow = data.dependencies && data.dependencies.length > 0 
       ? this.shouldShowElementWithDependencies(elementId)
       : this.shouldShowElement(data.category, data.area);
@@ -659,7 +661,7 @@ export class UIFlow implements UIFlowInstance {
         const data = JSON.parse(stored);
         this.logger.storage('Parsed stored data', data);
         
-        // Load area densities
+        // Load area data
         if (data.areas) {
           this.areas = new Map(data.areas);
           this.logger.storage('Loaded areas', { size: this.areas.size });

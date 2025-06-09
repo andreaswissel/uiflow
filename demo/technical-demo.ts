@@ -173,10 +173,11 @@ dashboardSlider.addEventListener('input', (e) => {
   document.getElementById('dashboard-density-value').textContent = e.target.value + '%';
 });
 
-// ✅ Use DRY utilities for event handlers
+// ✅ Use DRY utilities for event handlers  
 addClickHandler('reset-btn', () => {
-  uiflow.resetArea('editor');
-  uiflow.resetArea('dashboard');
+  // Reset but preserve unlocked categories so users don't lose progress
+  uiflow.resetArea('editor', true);
+  uiflow.resetArea('dashboard', true);
   updateSliderValue('editor-density-slider', 'editor-density-value', 30);
   updateSliderValue('dashboard-density-slider', 'dashboard-density-value', 30);
   updateStats();

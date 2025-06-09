@@ -321,7 +321,7 @@ export interface UIFlowInstance {
   // Demo and testing helpers
   setDemoMode(enabled: boolean): void;
 
-  resetArea(area: AreaId): void;
+  resetArea(area: AreaId, preserveUnlockedCategories?: boolean): void;
   
   // Enhanced statistics
   getAreaStats(area: AreaId): AreaStats;
