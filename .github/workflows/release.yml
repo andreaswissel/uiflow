@@ -24,10 +24,16 @@ jobs:
       run: npm ci
       
     - name: Run tests
-      run: npm test
+      run: npm run test -- --run
       
-    - name: Build library
+    - name: Type check
+      run: npm run typecheck
+      
+    - name: Build library  
       run: npm run build
+      
+    - name: Verify package contents
+      run: npm pack --dry-run
       
     - name: Publish to npm
       run: npm publish
