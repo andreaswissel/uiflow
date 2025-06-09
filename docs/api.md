@@ -1,6 +1,6 @@
 # UIFlow API Reference
 
-Complete API reference for UIFlow - Adaptive UI Density Management Library.
+Complete API reference for UIFlow - Dependency-Based Progressive Disclosure Library.
 
 ## Table of Contents
 
@@ -9,7 +9,7 @@ Complete API reference for UIFlow - Adaptive UI Density Management Library.
 - [Element Dependencies](#element-dependencies)
 - [A/B Testing](#ab-testing)
 - [Element Management](#element-management)
-- [Density Control](#density-control)
+- [Element Management](#element-management)
 - [Data Sources](#data-sources)
 - [User Education](#user-education)
 - [Events](#events)

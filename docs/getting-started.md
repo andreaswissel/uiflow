@@ -1,6 +1,6 @@
 # Getting Started with UIFlow
 
-A comprehensive guide to integrating UIFlow into your application for adaptive UI density management.
+A comprehensive guide to integrating UIFlow into your application for dependency-based progressive disclosure.
 
 ## What is UIFlow?
 
@@ -10,8 +10,8 @@ UIFlow is a JavaScript library that automatically adapts your user interface com
 
 - **Categories**: UI elements are categorized as `basic`, `advanced`, or `expert`
 - **Areas**: Logical UI sections like `editor`, `toolbar`, `sidebar` 
-- **Density**: A 0-1 scale representing UI complexity in each area
-- **Adaptation**: Automatic density adjustment based on usage patterns
+- **Dependencies**: Rules that determine when elements become visible
+- **Progressive Disclosure**: Elements unlock based on user interaction patterns
 
 ## Quick Start
 
