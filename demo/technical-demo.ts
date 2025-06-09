@@ -442,17 +442,23 @@ function simulateUserBehavior(userType: UserType): void {
   // ✅ Use the new convenience API - no more manual interaction arrays!
   uiflow.simulateUserType(userType, ['editor', 'dashboard']);
   
-  // For power users, boost density to show expert features immediately
+  // For power users, unlock advanced/expert features immediately
   if (userType === 'power-user' || userType === 'expert') {
     setTimeout(() => {
-      uiflow.boostDensity('editor', 0.85);
-      uiflow.boostDensity('dashboard', 0.80);
+      // Unlock advanced features in both areas
+      uiflow.unlockCategory('advanced', 'editor');
+      uiflow.unlockCategory('advanced', 'dashboard');
+      
+      // For experts, also unlock expert features
+      if (userType === 'expert') {
+        uiflow.unlockCategory('expert', 'editor');
+        uiflow.unlockCategory('expert', 'dashboard');
+      }
       updateStats();
     }, 100);
   }
   
-  console.log(`📊 After simulation - Editor: ${Math.round(uiflow.getDensityLevel('editor') * 100)}%, Dashboard: ${Math.round(uiflow.getDensityLevel('dashboard') * 100)}%`);
-  console.log(`🎯 Expert threshold: 75%, Current density can show expert: ${uiflow.shouldShowElement('expert', 'editor') ? 'YES' : 'NO'}`);
+  console.log(`📊 After simulation - Unlocked categories in both areas`);
   
   // Flag newly revealed expert features after power user simulation
   if (userType === 'power-user') {

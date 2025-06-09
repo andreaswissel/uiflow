@@ -17,6 +17,7 @@ export interface UIFlowConfig {
   syncInterval?: number;
   userId?: string | null;
   dataSources?: Record<string, DataSourceConfig>;
+  debug?: boolean | 'verbose'; // false = no logs, true = important logs, 'verbose' = all logs
 }
 
 export interface DataSourceConfig {
