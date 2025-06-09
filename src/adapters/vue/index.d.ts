@@ -15,7 +15,6 @@ import type {
   UIFlowInstance,
   Category,
   AreaId,
-  DensityLevel,
   ElementOptions,
   HighlightOptions
 } from '../../types.js';

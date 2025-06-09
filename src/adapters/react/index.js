@@ -88,59 +88,7 @@ export function useUIFlowElement(category, area = 'default', options = {}) {
   return { elementRef, isVisible, uiflow: isReady ? uiflow : null };
 }
 
-/**
- * Hook for area density tracking
- */
-export function useAreaDensity(area = 'default') {
-  const { uiflow, isReady } = useUIFlow();
-  const [density, setDensity] = useState(0.3);
-  const [hasOverride, setHasOverride] = useState(false);
-
-  useEffect(() => {
-    if (!isReady || !uiflow) return;
-
-    const updateDensity = () => {
-      setDensity(uiflow.getDensityLevel(area));
-      setHasOverride(uiflow.hasOverride(area));
-    };
-
-    // Listen for density changes
-    const handleDensityChange = (event) => {
-      if (event.detail.area === area) {
-        updateDensity();
-      }
-    };
-
-    const handleOverride = (event) => {
-      if (event.detail.area === area) {
-        updateDensity();
-      }
-    };
-
-    document.addEventListener('uiflow:density-changed', handleDensityChange);
-    document.addEventListener('uiflow:adaptation', handleDensityChange);
-    document.addEventListener('uiflow:override-applied', handleOverride);
-    document.addEventListener('uiflow:override-cleared', handleOverride);
-
-    // Initial value
-    updateDensity();
-
-    return () => {
-      document.removeEventListener('uiflow:density-changed', handleDensityChange);
-      document.removeEventListener('uiflow:adaptation', handleDensityChange);
-      document.removeEventListener('uiflow:override-applied', handleOverride);
-      document.removeEventListener('uiflow:override-cleared', handleOverride);
-    };
-  }, [isReady, area]);
-
-  const setDensityLevel = useCallback((level) => {
-    if (uiflow) {
-      uiflow.setDensityLevel(level, area);
-    }
-  }, [uiflow, area]);
-
-  return { density, hasOverride, setDensityLevel };
-}
+// Removed: useAreaDensity - no longer using density system
 
 /**
  * Hook for element highlighting
@@ -202,46 +150,19 @@ export function UIFlowElement({
 }
 
 /**
- * Conditional render based on density level
+ * Simple conditional render - simplified without density
  */
 export function UIFlowConditional({ 
   area = 'default', 
-  minDensity = 0, 
-  maxDensity = 1, 
   children,
   fallback = null 
 }) {
-  const { density } = useAreaDensity(area);
-  const shouldRender = density >= minDensity && density <= maxDensity;
-
-  return shouldRender ? children : fallback;
+  // Simplified: always render children for now
+  // Could be extended to check element visibility in area
+  return children;
 }
 
-/**
- * Area density display component
- */
-export function UIFlowDensityIndicator({ area = 'default', showOverride = true }) {
-  const { density, hasOverride } = useAreaDensity(area);
-  
-  return React.createElement('div', {
-    className: 'uiflow-density-indicator',
-    style: {
-      padding: '4px 8px',
-      backgroundColor: hasOverride ? '#fbbf24' : '#3b82f6',
-      color: 'white',
-      borderRadius: '4px',
-      fontSize: '12px',
-      fontWeight: 'bold'
-    }
-  }, [
-    React.createElement('span', { key: 'area' }, `${area}: `),
-    React.createElement('span', { key: 'density' }, `${Math.round(density * 100)}%`),
-    showOverride && hasOverride && React.createElement('span', { 
-      key: 'override',
-      style: { marginLeft: '4px', opacity: 0.8 }
-    }, '(override)')
-  ]);
-}
+// Removed: UIFlowDensityIndicator - no longer using density system
 
 /**
  * Hook for UIFlow events

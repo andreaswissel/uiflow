@@ -7,11 +7,109 @@ const uiflow = new UIFlow({
   categories: ['basic', 'advanced', 'expert']
 });
 
-// Demo state
+// Demo state - will be initialized from UIFlow persistent data
 let postsCreated = 0;
 let mediaUploaded = 0;
 let postsScheduled = 0;
 let currentCharCount = 0;
+
+// Sync demo state with UIFlow persistent element data
+function initializeDemoStateFromUIFlow() {
+  // Debug: Check localStorage first
+  const stored = localStorage.getItem('uiflow-data');
+  if (stored) {
+    const data = JSON.parse(stored);
+    console.log('💾 Found stored UIFlow data:', data);
+    if (data.elements) {
+      console.log('💾 Stored elements array:', data.elements);
+      console.log('💾 First element sample:', data.elements[0]);
+      // Show element IDs and interaction counts
+      data.elements.forEach(([id, elementData]: [string, any]) => {
+        console.log(`💾 Element ${id}: interactions=${elementData.interactions}, visible=${elementData.visible}`);
+      });
+    }
+  } else {
+    console.log('💾 No stored UIFlow data found in localStorage');
+  }
+  
+  // Debug: Check what elements are registered
+  console.log('🔍 UIFlow elements map size:', (uiflow as any).elements.size);
+  console.log('🔍 UIFlow elements keys:', Array.from((uiflow as any).elements.keys()));
+  
+  // Debug: Check if storedElementData was populated
+  console.log('💾 Stored element data map size:', (uiflow as any).storedElementData?.size || 'undefined');
+  if ((uiflow as any).storedElementData) {
+    console.log('💾 Stored element data keys:', Array.from((uiflow as any).storedElementData.keys()));
+  }
+  
+  // Get interaction counts from UIFlow elements
+  const publishElement = (uiflow as any).elements.get('publish-now');
+  const mediaElement = (uiflow as any).elements.get('media-widget');  
+  const scheduleElement = (uiflow as any).elements.get('schedule-widget');
+  
+  console.log('🔍 Found elements:', { 
+    publish: !!publishElement, 
+    media: !!mediaElement, 
+    schedule: !!scheduleElement 
+  });
+  
+  if (publishElement) {
+    postsCreated = publishElement.interactions || 0;
+    console.log('📊 Publish element interactions:', publishElement.interactions);
+  }
+  if (mediaElement) {
+    mediaUploaded = mediaElement.interactions || 0;
+    console.log('📊 Media element interactions:', mediaElement.interactions);
+  }
+  if (scheduleElement) {
+    postsScheduled = scheduleElement.interactions || 0;
+    console.log('📊 Schedule element interactions:', scheduleElement.interactions);
+  }
+  
+  console.log('📊 Demo state initialized from UIFlow:', { postsCreated, mediaUploaded, postsScheduled });
+}
+
+// Helper function to simulate element clicks for UIFlow integration
+function simulateElementClick(elementId: string) {
+  // Pre-fill content for publish-now to avoid empty content alerts
+  if (elementId === 'publish-now') {
+    const textarea = document.getElementById('post-content') as HTMLTextAreaElement;
+    if (!textarea.value.trim()) {
+      const samplePosts = [
+        "🚀 Excited to share my latest project! #innovation",
+        "📊 Just discovered some amazing insights from our analytics data",
+        "💡 Here's a quick tip for better social media engagement...",
+        "🎯 Working on something special - stay tuned!",
+        "✨ Another productive day building amazing things",
+        "🔥 Love seeing the community grow and engage",
+        "📈 Data-driven decisions are the key to success",
+        "🌟 Grateful for all the support from our community"
+      ];
+      const randomPost = samplePosts[Math.floor(Math.random() * samplePosts.length)];
+      textarea.value = randomPost;
+      updateCharacterCount();
+    }
+  }
+  
+  const element = document.querySelector(`[data-uiflow-id="${elementId}"]`) as HTMLElement;
+  if (element) {
+    console.log(`🎯 Simulating click on element: ${elementId}`);
+    
+    // Directly trigger UIFlow's interaction recording for reliable simulation
+    // This bypasses the event system to ensure the interaction is always recorded
+    (uiflow as any).recordInteractionFromElement(element);
+    
+    // Also dispatch the actual UI click for any other listeners
+    const clickEvent = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    element.dispatchEvent(clickEvent);
+  } else {
+    console.warn(`⚠️ Element with data-uiflow-id="${elementId}" not found for simulation`);
+  }
+}
 
 // Load configuration and initialize
 async function initializeSocialFlow() {
@@ -22,6 +120,11 @@ async function initializeSocialFlow() {
     
     await uiflow.loadConfiguration(config);
     
+    // Wait for DOM registration to complete, then initialize demo state
+    setTimeout(() => {
+      initializeDemoStateFromUIFlow();
+    }, 100);
+    
     // Initialize UI event listeners
     setupEventListeners();
     
@@ -31,7 +134,7 @@ async function initializeSocialFlow() {
     // Initial UI update
     updateProgress();
     updateStats();
-    updateElementVisibility(); // Set initial element visibility
+    // UIFlow handles visibility automatically via configuration
     
     console.log('🚀 SocialFlow initialized with smart progressive disclosure!');
     
@@ -72,10 +175,15 @@ function initializeManually() {
     ]
   });
   
+  // Initialize demo state from persistent UIFlow data (delayed for element registration)
+  setTimeout(() => {
+    initializeDemoStateFromUIFlow();
+  }, 100);
+  
   setupEventListeners();
   updateProgress();
   updateStats();
-  updateElementVisibility(); // Set initial element visibility
+  // UIFlow handles visibility automatically via configuration
 }
 
 // Setup all event listeners
@@ -181,8 +289,7 @@ function updateCharacterCount() {
   postsCreated++;
   console.log(`📤 Post ${postsCreated} published: "${content.substring(0, 50)}..."`);
   
-  // Track the interaction for UIFlow
-  uiflow.recordInteraction('publish-now', 'basic', 'composer');
+  // Track the interaction for UIFlow (the click event will be handled by UIFlow's event listener)
   
   // Clear the textarea
   textarea.value = '';
@@ -191,7 +298,7 @@ function updateCharacterCount() {
   // Update UI
   updateProgress();
   updateStats();
-  updateElementVisibility(); // Update element visibility after interaction
+  // UIFlow handles visibility automatically after interactions
   
   // Track metrics
   uiflow.trackABTestMetric('posts_created');
@@ -226,8 +333,7 @@ function updateCharacterCount() {
   mediaUploaded++;
   console.log('📸 Media uploaded');
   
-  // Record the interaction for UIFlow
-  uiflow.recordInteraction('media-widget', 'advanced', 'media');
+  // Record the interaction for UIFlow (the click event will be handled by UIFlow's event listener)
   
   // Add mock media preview
   const preview = document.getElementById('media-preview')!;
@@ -237,7 +343,7 @@ function updateCharacterCount() {
   preview.appendChild(mediaItem);
   
   uiflow.trackABTestMetric('media_uploaded');
-  updateElementVisibility(); // Update visibility after interaction
+  // UIFlow handles visibility automatically after interactions
   showNotification('📸 Media uploaded successfully!', 'success');
 };
 
@@ -253,12 +359,11 @@ function updateCharacterCount() {
   postsScheduled++;
   console.log(`⏰ Post scheduled for ${dateInput.value} at ${timeInput.value}`);
   
-  // Record the interaction for UIFlow
-  uiflow.recordInteraction('schedule-widget', 'expert', 'scheduling');
+  // Record the interaction for UIFlow (the click event will be handled by UIFlow's event listener)
   
   uiflow.trackABTestMetric('posts_scheduled');
   updateStats();
-  updateElementVisibility(); // Update visibility after interaction
+  // UIFlow handles visibility automatically after interactions
   showNotification('⏰ Post scheduled successfully!', 'success');
 };
 
@@ -321,51 +426,122 @@ function updateCharacterCount() {
     mediaUploaded = 3;
     postsScheduled = 2;
     
-    // Simulate interactions for content creator
-    for (let i = 0; i < 8; i++) {
-      uiflow.recordInteraction('publish-now', 'basic', 'composer');
+    // Content Creator: Focuses on basic content creation + some media
+    // 1. Basic posts to unlock Instagram and text tools
+    for (let i = 0; i < 4; i++) {
+      simulateElementClick('publish-now');
     }
-    for (let i = 0; i < 3; i++) {
-      uiflow.recordInteraction('media-widget', 'advanced', 'media');
-    }
-    for (let i = 0; i < 2; i++) {
-      uiflow.recordInteraction('schedule-widget', 'expert', 'scheduling');
-    }
+    
+    // Small delay to allow dependency updates
+    setTimeout(() => {
+      // 2. Instagram becomes available (needs 2 posts)
+      simulateElementClick('instagram-platform');
+      
+      // 3. Media widget becomes available (needs 2 posts)
+      for (let i = 0; i < 3; i++) {
+        simulateElementClick('media-widget');
+      }
+      
+      // 4. More posts to reach text-tools threshold (needs 3)
+      for (let i = 4; i < 8; i++) {
+        simulateElementClick('publish-now');
+      }
+      
+      // 5. Some hashtag usage (threshold: 1)
+      simulateElementClick('hashtag-widget');
+      
+      // Small delay for schedule-widget dependencies  
+      setTimeout(() => {
+        // 6. Light scheduling usage (needs media-widget + publish-now ≥ 3)
+        for (let i = 0; i < 2; i++) {
+          simulateElementClick('schedule-widget');
+        }
+        
+        // Show notification after content creator simulation is complete
+        setTimeout(() => {
+          showNotification(`🎭 Simulated ${userType} behavior - watch the UI adapt!`, 'info');
+        }, 100);
+      }, 100);
+    }, 100);
   } else if (userType === 'social-manager') {
     postsCreated = 20;
     mediaUploaded = 12;
     postsScheduled = 15;
     
-    // Simulate interactions for social manager  
-    for (let i = 0; i < 20; i++) {
-      uiflow.recordInteraction('publish-now', 'basic', 'composer');
-    }
-    for (let i = 0; i < 12; i++) {
-      uiflow.recordInteraction('media-widget', 'advanced', 'media');
-    }
-    for (let i = 0; i < 15; i++) {
-      uiflow.recordInteraction('schedule-widget', 'expert', 'scheduling');
-    }
+    // Social Manager: Heavy usage across all features + targeting
+    // 1. Establish baseline posts for all dependencies
     for (let i = 0; i < 5; i++) {
-      uiflow.recordInteraction('hashtag-widget', 'advanced', 'tools');
+      simulateElementClick('publish-now');
     }
+    
+    // Small delay to allow dependency updates
+    setTimeout(() => {
+      // 2. Instagram and basic tools become available
+      simulateElementClick('instagram-platform');
+      
+      // 3. Heavy media usage
+      for (let i = 0; i < 12; i++) {
+        simulateElementClick('media-widget');
+      }
+      
+      // 4. More posts (total 20 for expert level)
+      for (let i = 5; i < 20; i++) {
+        simulateElementClick('publish-now');
+      }
+      
+      // 5. Heavy hashtag usage (satisfies targeting logical_and requirement)
+      for (let i = 0; i < 8; i++) {
+        simulateElementClick('hashtag-widget');
+      }
+      
+      // Small delay for schedule-widget dependencies
+      setTimeout(() => {
+        // 6. Heavy scheduling usage (satisfies targeting logical_and requirement)
+        for (let i = 0; i < 15; i++) {
+          simulateElementClick('schedule-widget');
+        }
+        
+        // Small delay for targeting-widget to become available
+        setTimeout(() => {
+          // 7. Targeting widget (needs: 5 posts in 7d + schedule + hashtag usage)
+          for (let i = 0; i < 3; i++) {
+            simulateElementClick('targeting-widget');
+          }
+          
+          // 8. Analytics widget (expert level)
+          for (let i = 0; i < 2; i++) {
+            simulateElementClick('analytics-widget');
+          }
+          
+          // Show notification after all simulation is complete
+          setTimeout(() => {
+            showNotification(`🎭 Simulated ${userType} behavior - watch the UI adapt!`, 'info');
+          }, 100);
+        }, 200);
+      }, 100);
+    }, 100);
   } else {
     postsCreated = 1;
     mediaUploaded = 0;
     postsScheduled = 0;
     
     // Simulate minimal interactions for beginner
-    uiflow.recordInteraction('publish-now', 'basic', 'composer');
+    simulateElementClick('publish-now');
+    
+    // Show notification for beginner
+    setTimeout(() => {
+      showNotification(`🎭 Simulated ${userType} behavior - watch the UI adapt!`, 'info');
+    }, 100);
   }
   
-  // Use UIFlow's user simulation for density adaptation
+  // Use UIFlow's user simulation for dependency-based progression
   uiflow.simulateUserType(mappedType, ['composer', 'media', 'scheduling', 'tools', 'analytics']);
   
   updateProgress();
   updateStats();
-  updateElementVisibility(); // Ensure UI updates immediately
+  // UIFlow handles visibility automatically through configuration
   
-  showNotification(`🎭 Simulated ${userType} behavior - watch the UI adapt!`, 'info');
+  // Notification is now shown after simulation completes (moved to timeouts above)
 };
 
 (window as any).resetProgress = function() {
@@ -373,12 +549,29 @@ function updateCharacterCount() {
   mediaUploaded = 0;
   postsScheduled = 0;
   
-  // Reset UIFlow
+  // Reset UIFlow areas
   uiflow.resetArea('composer');
   uiflow.resetArea('media');
   uiflow.resetArea('scheduling');
   uiflow.resetArea('tools');
   uiflow.resetArea('analytics');
+  
+  // Reset element interaction counts directly for complete reset
+  const elementsToReset = [
+    'publish-now', 'instagram-platform', 'text-tools', 
+    'media-widget', 'schedule-widget', 'hashtag-widget', 
+    'targeting-widget', 'analytics-widget'
+  ];
+  
+  elementsToReset.forEach(elementId => {
+    const elementData = (uiflow as any).elements.get(elementId);
+    if (elementData) {
+      elementData.interactions = 0;
+      elementData.lastUsed = null;
+      elementData.visible = elementId === 'publish-now'; // Only publish-now should be visible initially
+      (uiflow as any).updateElementVisibility(elementId);
+    }
+  });
   
   // Clear UI
   document.getElementById('media-preview')!.innerHTML = '';
@@ -387,7 +580,6 @@ function updateCharacterCount() {
   
   updateProgress();
   updateStats();
-  updateElementVisibility(); // Reset element visibility
   
   showNotification('🔄 Progress reset - start your journey again!', 'info');
 };
@@ -495,68 +687,14 @@ function handleTutorialRequested(event: CustomEvent) {
 }
 
 function handleUIAdaptation(event: CustomEvent) {
-  const { area, newDensity } = event.detail;
-  console.log(`🎯 UI adapted: ${area} → ${Math.round(newDensity * 100)}%`);
+  const { area } = event.detail;
+  console.log(`🎯 UI adapted: ${area} dependencies updated`);
   
-  // Update element visibility based on new density
-  updateElementVisibility();
+  // UIFlow handles visibility automatically based on dependencies and configuration
 }
 
-// Update element visibility based on UIFlow state
-function updateElementVisibility() {
-  const elements = [
-    { id: 'instagram-platform', category: 'advanced', area: 'composer' },
-    { id: 'text-tools', category: 'advanced', area: 'composer' },
-    { id: 'media-widget', category: 'advanced', area: 'media' },
-    { id: 'schedule-widget', category: 'expert', area: 'scheduling' },
-    { id: 'hashtag-widget', category: 'advanced', area: 'tools' },
-    { id: 'analytics-widget', category: 'expert', area: 'analytics' },
-    { id: 'targeting-widget', category: 'expert', area: 'tools' }
-  ];
-
-  elements.forEach(({ id, category, area }) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const shouldShow = uiflow.shouldShowElement(category, area);
-      const dependencies = uiflow.validateDependencies ? uiflow.validateDependencies(id) : true;
-      const isVisible = shouldShow && dependencies;
-      
-      // Update visibility
-      if (isVisible) {
-        element.classList.remove('hidden');
-        element.style.display = '';
-        
-        // Update badge
-        const badge = element.querySelector('.feature-badge');
-        if (badge) {
-          badge.textContent = 'UNLOCKED';
-          badge.classList.remove('locked');
-        }
-        
-        // Hide unlock hints
-        const hint = element.querySelector('.unlock-hint') as HTMLElement;
-        if (hint) {
-          hint.style.display = 'none';
-        }
-      } else {
-        element.classList.add('hidden');
-        
-        // Update badge
-        const badge = element.querySelector('.feature-badge');
-        if (badge) {
-          badge.textContent = 'LOCKED';
-          badge.classList.add('locked');
-        }
-        
-        // Show unlock hints
-        const hint = element.querySelector('.unlock-hint') as HTMLElement;
-        if (hint) {
-          hint.style.display = 'block';
-        }
-      }
-    }
-  });
-}
+// UIFlow now handles all visibility automatically through configuration
+// This function is no longer needed - UIFlow manages element visibility internally
 
 // Notification system
 function showNotification(message: string, type: 'success' | 'info' | 'warning' = 'info') {
@@ -611,4 +749,23 @@ if (document.readyState === 'loading') {
   get postsCreated() { return postsCreated; },
   get mediaUploaded() { return mediaUploaded; },
   get postsScheduled() { return postsScheduled; }
+};
+
+// Debug function to check persistence
+(window as any).checkPersistence = function() {
+  const stored = localStorage.getItem('uiflow-data');
+  if (stored) {
+    const data = JSON.parse(stored);
+    console.log('💾 Stored UIFlow data:', data);
+    
+    if (data.elements) {
+      console.log('📊 Element interactions stored:', 
+        Array.from(data.elements).map(([id, data]: [string, any]) => 
+          ({ id, interactions: data.interactions, visible: data.visible })
+        )
+      );
+    }
+  } else {
+    console.log('💾 No stored UIFlow data found');
+  }
 };

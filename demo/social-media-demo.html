@@ -441,12 +441,20 @@
 
                 <!-- Basic Actions -->
                 <div style="margin-top: 16px; display: flex; gap: 12px;">
-                    <button class="btn" id="publish-now" onclick="publishPost()">📤 Publish Now</button>
+                    <button class="btn" id="publish-now" 
+                            data-uiflow-id="publish-now"
+                            data-uiflow-category="basic" 
+                            data-uiflow-area="composer"
+                            onclick="publishPost()">📤 Publish Now</button>
                     <button class="btn secondary" id="save-draft" onclick="saveDraft()">💾 Save Draft</button>
                 </div>
 
                 <!-- Advanced Text Tools (unlocked after 5 posts) -->
-                <div class="widget" id="text-tools" data-uiflow-category="advanced" style="margin-top: 20px;">
+                <div class="widget" id="text-tools" 
+                     data-uiflow-id="text-tools"
+                     data-uiflow-category="advanced" 
+                     data-uiflow-area="composer" 
+                     style="margin-top: 20px;">
                     <div class="widget-header">
                         <span class="widget-icon">🎯</span>
                         <span class="widget-title">Text Enhancement</span>
@@ -460,7 +468,10 @@
             <!-- Sidebar with Progressive Features -->
             <div class="sidebar">
                 <!-- Media Upload Widget (unlocked after 3 posts) -->
-                <div class="widget" id="media-widget" data-uiflow-area="media" data-uiflow-category="advanced">
+                <div class="widget" id="media-widget" 
+                     data-uiflow-id="media-widget"
+                     data-uiflow-area="media" 
+                     data-uiflow-category="advanced">
                     <div class="widget-header">
                         <span class="widget-icon">🖼️</span>
                         <span class="widget-title">Media</span>
@@ -479,7 +490,10 @@
                 </div>
 
                 <!-- Scheduling Widget (unlocked after using media) -->
-                <div class="widget" id="schedule-widget" data-uiflow-area="scheduling" data-uiflow-category="expert">
+                <div class="widget" id="schedule-widget" 
+                     data-uiflow-id="schedule-widget"
+                     data-uiflow-area="scheduling" 
+                     data-uiflow-category="expert">
                     <div class="widget-header">
                         <span class="widget-icon">⏰</span>
                         <span class="widget-title">Schedule</span>
@@ -499,7 +513,10 @@
                 </div>
 
                 <!-- Hashtag Suggestions (unlocked after 2 posts) -->
-                <div class="widget" id="hashtag-widget" data-uiflow-area="tools" data-uiflow-category="advanced">
+                <div class="widget" id="hashtag-widget" 
+                     data-uiflow-id="hashtag-widget"
+                     data-uiflow-area="tools" 
+                     data-uiflow-category="advanced">
                     <div class="widget-header">
                         <span class="widget-icon">#️⃣</span>
                         <span class="widget-title">Hashtag Suggestions</span>
@@ -517,7 +534,10 @@
                 </div>
 
                 <!-- Analytics Widget (unlocked after 5 scheduled posts) -->
-                <div class="widget" id="analytics-widget" data-uiflow-area="analytics" data-uiflow-category="expert">
+                <div class="widget" id="analytics-widget" 
+                     data-uiflow-id="analytics-widget"
+                     data-uiflow-area="analytics" 
+                     data-uiflow-category="expert">
                     <div class="widget-header">
                         <span class="widget-icon">📊</span>
                         <span class="widget-title">Analytics</span>
@@ -550,7 +570,10 @@
                 </div>
 
                 <!-- Audience Targeting (expert feature) -->
-                <div class="widget" id="targeting-widget" data-uiflow-area="tools" data-uiflow-category="expert">
+                <div class="widget" id="targeting-widget" 
+                     data-uiflow-id="targeting-widget"
+                     data-uiflow-area="tools" 
+                     data-uiflow-category="expert">
                     <div class="widget-header">
                         <span class="widget-icon">🎯</span>
                         <span class="widget-title">Audience Targeting</span>

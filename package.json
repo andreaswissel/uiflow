@@ -35,7 +35,7 @@
   "scripts": {
     "build": "rollup -c",
     "build:clean": "echo '🏗️  UIFlow Core Library Build Status:' && npm run build 2>&1 | grep -E 'created' && echo '✅ Core library built successfully! (Angular adapter peer dependency warnings are expected and safe to ignore)'",
-    "dev": "vite serve demo",
+    "dev": "vite --open /demo/",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",

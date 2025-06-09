@@ -15,7 +15,6 @@ import type {
   UIFlowInstance,
   Category,
   AreaId,
-  DensityLevel,
   ElementOptions,
   HighlightOptions
 } from '../../types.js';
@@ -49,12 +48,6 @@ export interface UseUIFlowElementReturn {
   uiflow: UIFlowInstance | null;
 }
 
-export interface UseAreaDensityReturn {
-  density: DensityLevel;
-  hasOverride: boolean;
-  setDensityLevel: (level: DensityLevel) => void;
-}
-
 export interface UseUIFlowHighlightReturn {
   highlight: (elementId: string, style?: string, options?: HighlightOptions) => UIFlowInstance | undefined;
   removeHighlight: (elementId: string) => UIFlowInstance | undefined;
@@ -70,8 +63,6 @@ export function useUIFlowElement(
   area?: AreaId,
   options?: ElementOptions
 ): UseUIFlowElementReturn;
-
-export function useAreaDensity(area?: AreaId): UseAreaDensityReturn;
 
 export function useUIFlowHighlight(): UseUIFlowHighlightReturn;
 
@@ -89,21 +80,13 @@ export interface UIFlowElementProps extends ComponentProps<'div'> {
 
 export interface UIFlowConditionalProps {
   area?: AreaId;
-  minDensity?: DensityLevel;
-  maxDensity?: DensityLevel;
   children: ReactNode;
   fallback?: ReactNode;
-}
-
-export interface UIFlowDensityIndicatorProps {
-  area?: AreaId;
-  showOverride?: boolean;
 }
 
 // Component functions
 export const UIFlowElement: FunctionComponent<UIFlowElementProps>;
 export const UIFlowConditional: FunctionComponent<UIFlowConditionalProps>;
-export const UIFlowDensityIndicator: FunctionComponent<UIFlowDensityIndicatorProps>;
 
 // Version export
 export const REACT_ADAPTER_VERSION: string;

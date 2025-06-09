@@ -5,7 +5,7 @@
 export type Category = 'basic' | 'advanced' | 'expert';
 export type AreaId = string;
 export type ElementId = string;
-export type DensityLevel = number; // 0-1
+// Removed: DensityLevel - no longer using density system
 
 export interface UIFlowConfig {
   categories?: Category[];
@@ -40,7 +40,6 @@ export interface ElementData {
 }
 
 export interface AreaData {
-  density: DensityLevel;
   lastActivity: number;
   totalInteractions: number;
 }
@@ -86,7 +85,6 @@ export interface ABTestVariant {
 }
 
 export interface AreaConfiguration {
-  defaultDensity: number;
   elements: ElementConfiguration[];
   rules?: AreaRule[];
 }
@@ -181,7 +179,6 @@ export interface UserSimulationOptions {
 }
 
 export interface AreaStats {
-  density: number;
   visibleElements: number;
   totalElements: number;
   recentUsage: Record<Category, number>;
@@ -202,12 +199,7 @@ export interface StoredData {
 
 export interface EventDetail {
   area?: AreaId;
-  density?: DensityLevel;
-  areas?: Record<AreaId, DensityLevel>;
-  newDensity?: DensityLevel;
-  oldDensity?: DensityLevel;
-  previousDensity?: DensityLevel;
-  advancedRatio?: number;
+  areas?: string[];
   totalInteractions?: number;
   elementId?: ElementId;
   style?: string;
@@ -246,14 +238,11 @@ export interface DataSourceInterface {
 
 export type UIFlowEventType = 
   | 'uiflow:initialized'
-  | 'uiflow:density-changed'
   | 'uiflow:adaptation'
   | 'uiflow:sync-success'
   | 'uiflow:sync-error'
   | 'uiflow:push-success'
   | 'uiflow:push-error'
-  | 'uiflow:override-applied'
-  | 'uiflow:override-cleared'
   | 'uiflow:highlight-added'
   | 'uiflow:highlight-removed'
   | 'uiflow:datasource-added'
@@ -307,17 +296,8 @@ export interface UIFlowInstance {
     options?: ElementOptions
   ): UIFlowInstance;
   
-  // Density management
-  getDensityLevel(area?: AreaId): DensityLevel;
-  setDensityLevel(level: DensityLevel, area?: AreaId, options?: { skipAPI?: boolean }): UIFlowInstance;
-  getAreaDensities(): Record<AreaId, DensityLevel>;
+  // Element visibility
   shouldShowElement(category: Category, area?: AreaId): boolean;
-  
-  // Override management
-  setRemoteOverride(area: AreaId, density: DensityLevel): void;
-  clearRemoteOverride(area: AreaId): void;
-  hasOverride(area: AreaId): boolean;
-  getOverrides(): Record<AreaId, DensityLevel>;
   
   // Data source management
   addDataSource(name: string, type: string, config: DataSourceConfig, isPrimary?: boolean): UIFlowInstance;
@@ -339,7 +319,7 @@ export interface UIFlowInstance {
   
   // Demo and testing helpers
   setDemoMode(enabled: boolean): void;
-  boostDensity(area: AreaId, targetDensity: number): void;
+
   resetArea(area: AreaId): void;
   
   // Enhanced statistics

@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "areas": {
     "composer": {
-      "defaultDensity": 0.8,
       "elements": [
+        {
+          "id": "publish-now",
+          "selector": "#publish-now",
+          "category": "basic",
+          "helpText": "Create and publish your social media posts"
+        },
         {
           "id": "instagram-platform",
           "selector": "#instagram-platform",
@@ -36,7 +41,6 @@
       ]
     },
     "media": {
-      "defaultDensity": 0.3,
       "elements": [
         {
           "id": "media-widget",
@@ -55,7 +59,6 @@
       ]
     },
     "scheduling": {
-      "defaultDensity": 0.2,
       "elements": [
         {
           "id": "schedule-widget",
@@ -79,7 +82,6 @@
       ]
     },
     "tools": {
-      "defaultDensity": 0.4,
       "elements": [
         {
           "id": "hashtag-widget",
@@ -118,7 +120,6 @@
       ]
     },
     "analytics": {
-      "defaultDensity": 0.1,
       "elements": [
         {
           "id": "analytics-widget",
