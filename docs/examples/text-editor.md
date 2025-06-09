@@ -37,8 +37,8 @@ This example demonstrates how to create an adaptive text editor that progressive
         <button id="batch-ops-btn" class="btn">Batch Operations</button>
       </div>
       
-      <!-- Density indicator -->
-      <div class="density-indicator" id="density-display"></div>
+      <!-- Progress indicator -->
+      <div class="progress-indicator" id="progress-display"></div>
     </header>
 
     <!-- Main editing area -->
@@ -177,7 +177,7 @@ class AdaptiveTextEditor {
 
     await this.uiflow.init();
     this.categorizeElements();
-    this.setupDensityDisplay();
+    this.setupProgressDisplay();
   }
 
   categorizeElements() {
@@ -350,25 +350,22 @@ class AdaptiveTextEditor {
     );
   }
 
-  setupDensityDisplay() {
-    const densityDisplay = document.getElementById('density-display');
+  setupProgressDisplay() {
+    const progressDisplay = document.getElementById('progress-display');
     
     const updateDisplay = () => {
-      const editorDensity = this.uiflow.getDensityLevel('editor');
-      const fileOpsDensity = this.uiflow.getDensityLevel('file-ops');
-      const toolsDensity = this.uiflow.getDensityLevel('tools');
+      const areas = ['editor', 'file-ops', 'tools'];
+      const stats = areas.map(area => this.uiflow.getAreaStats(area));
       
-      densityDisplay.innerHTML = `
-        <div class="density-item">
-          <span>Editor: ${Math.round(editorDensity * 100)}%</span>
-          ${this.uiflow.hasOverride('editor') ? '<span class="override">Override</span>' : ''}
-        </div>
-        <div class="density-item">
-          <span>File: ${Math.round(fileOpsDensity * 100)}%</span>
-        </div>
-        <div class="density-item">
-          <span>Tools: ${Math.round(toolsDensity * 100)}%</span>
-        </div>
+      progressDisplay.innerHTML = `
+        ${stats.map((stat, index) => `
+          <div class="progress-item">
+            <span>${areas[index]}: ${stat.visibleElements}/${stat.totalElements} features</span>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${(stat.visibleElements/stat.totalElements)*100}%"></div>
+            </div>
+          </div>
+        `).join('')}
       `;
     };
 

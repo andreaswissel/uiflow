@@ -116,7 +116,6 @@ await uiflow.loadConfiguration(config);
 const config = {
   "areas": {
     "editor": {
-      "defaultDensity": 0.3,
       "elements": [
         {
           "id": "advanced-tools",
@@ -344,30 +343,30 @@ const visible = uiflow.shouldShowElement(category, area);
 
 **Returns:** boolean - Whether element should be visible
 
-## Density Control
+## Element Management
 
-### getDensityLevel(area)
+### validateDependencies(elementId)
 
-Get current density level for an area.
+Check if all dependencies for an element are satisfied.
 
 ```javascript
-const density = uiflow.getDensityLevel(area);
+const canShow = uiflow.validateDependencies('advanced-btn');
 ```
 
 **Parameters:**
-- `area` (string, default: 'default'): UI area identifier
+- `elementId` (string): Element identifier
 
-**Returns:** number - Density level (0-1)
+**Returns:** boolean - Whether dependencies are met
 
-### setDensityLevel(level, area, options)
+### updateDependentElements()
 
-Manually set density level for an area.
+Re-evaluate all element dependencies and update visibility.
 
 ```javascript
-uiflow.setDensityLevel(level, area, options);
+uiflow.updateDependentElements();
 ```
 
-**Parameters:**
+**Parameters:** None
 - `level` (number): Density level (0-1)
 - `area` (string, default: 'default'): UI area
 - `options` (Object, optional): Options

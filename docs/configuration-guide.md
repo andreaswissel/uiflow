@@ -14,11 +14,11 @@ Comprehensive guide to UIFlow's declarative JSON configuration system for scalab
 
 ## Overview
 
-UIFlow's configuration system allows you to define complex adaptive UX behaviors using declarative JSON, making it perfect for:
-- **SaaS Applications**: Progressive feature disclosure
-- **Content Management**: Workflow-based unlocking
-- **E-commerce**: Skill-based seller tools
-- **Social Media**: Engagement-driven features
+UIFlow's configuration system allows you to define dependency-based progressive disclosure using declarative JSON, making it perfect for:
+- **SaaS Applications**: Feature unlocking based on usage patterns
+- **Content Management**: Workflow-driven feature progression
+- **E-commerce**: Skill-based tool revelation
+- **Social Media**: Engagement-triggered feature access
 
 ## Basic Configuration
 
@@ -30,7 +30,6 @@ UIFlow's configuration system allows you to define complex adaptive UX behaviors
   "version": "1.0.0", 
   "areas": {
     "toolbar": {
-      "defaultDensity": 0.3,
       "elements": [
         {
           "id": "save-btn",
@@ -42,7 +41,15 @@ UIFlow's configuration system allows you to define complex adaptive UX behaviors
           "id": "export-btn", 
           "selector": "#export-btn",
           "category": "advanced",
-          "helpText": "Export to various formats"
+          "helpText": "Export to various formats",
+          "dependencies": [
+            {
+              "type": "usage_count",
+              "elementId": "save-btn",
+              "threshold": 3,
+              "description": "Use save 3 times to unlock export"
+            }
+          ]
         }
       ]
     }
@@ -67,8 +74,6 @@ UIFlow's configuration system allows you to define complex adaptive UX behaviors
 {
   "areas": {
     "editor": {
-      "defaultDensity": 0.4,
-      "learningRate": 0.15,
       "elements": [...],
       "metadata": {
         "description": "Text editing interface",
@@ -349,7 +354,6 @@ Complete SocialFlow configuration:
   "version": "1.0.0",
   "areas": {
     "composer": {
-      "defaultDensity": 0.8,
       "elements": [
         {
           "id": "instagram-platform",
@@ -368,7 +372,6 @@ Complete SocialFlow configuration:
       ]
     },
     "media": {
-      "defaultDensity": 0.3,
       "elements": [
         {
           "id": "media-upload",
@@ -386,7 +389,6 @@ Complete SocialFlow configuration:
       ]
     },
     "scheduling": {
-      "defaultDensity": 0.2,
       "elements": [
         {
           "id": "post-scheduler",
@@ -409,7 +411,6 @@ Complete SocialFlow configuration:
       ]
     },
     "analytics": {
-      "defaultDensity": 0.1,
       "elements": [
         {
           "id": "analytics-dashboard",

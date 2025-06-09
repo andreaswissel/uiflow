@@ -55,27 +55,29 @@ Base categories on user skill level, not technical complexity:
 - Advanced: "Medium complexity"
 - Expert: "Hard to code"
 
-### 3. Reversible Adaptation
+### 3. Clear Progress Indicators
 
-Always allow users to manually adjust density:
+Show users their progression and what's available:
 
 ```javascript
-// Provide manual controls
-function DensityControl({ area }) {
-  const { density, setDensityLevel } = useAreaDensity(area);
+// Show dependency progress
+function ProgressIndicator({ elementId }) {
+  const { uiflow } = useUIFlow();
+  const element = uiflow?.elements.get(elementId);
+  
+  if (!element?.dependencies) return null;
   
   return (
-    <div className="density-control">
-      <label>UI Complexity</label>
-      <input 
-        type="range" 
-        min="0" 
-        max="1" 
-        step="0.1"
-        value={density}
-        onChange={(e) => setDensityLevel(parseFloat(e.target.value))}
-      />
-      <span>{Math.round(density * 100)}%</span>
+    <div className="progress-indicator">
+      {element.dependencies.map(dep => (
+        <div key={dep.elementId} className="dependency-progress">
+          <span>{dep.description}</span>
+          <progress 
+            value={uiflow.elements.get(dep.elementId)?.interactions || 0}
+            max={dep.threshold}
+          />
+        </div>
+      ))}
     </div>
   );
 }
@@ -110,26 +112,34 @@ uiflow.categorize(element, 'expert', 'main');
 uiflow.categorize(element, 'advanced', 'editor-and-tools');
 ```
 
-### Density Thresholds
+### Dependency Design
 
-Plan your density thresholds strategically:
+Plan your dependency chains strategically:
 
 ```javascript
-// Three-tier system (recommended)
-const DENSITY_THRESHOLDS = {
-  BASIC_ONLY: 0.33,      // 0-33%: Basic only
-  WITH_ADVANCED: 0.67,   // 33-67%: Basic + Advanced  
-  EVERYTHING: 1.0        // 67-100%: All features
+// Progressive skill building (recommended)
+const DEPENDENCY_PATTERNS = {
+  USAGE_BASED: {        // Repetition builds familiarity
+    type: 'usage_count',
+    threshold: 3
+  },
+  WORKFLOW_BASED: {     // Sequential mastery
+    type: 'sequence', 
+    elements: ['step1', 'step2', 'step3']
+  },
+  TIME_BASED: {         // Consistent engagement
+    type: 'time_based',
+    timeWindow: '7d',
+    minUsage: 5
+  }
 };
 
-// Check visibility
-function shouldShowFeature(category, density) {
-  switch (category) {
-    case 'basic': return true;
-    case 'advanced': return density >= DENSITY_THRESHOLDS.BASIC_ONLY;
-    case 'expert': return density >= DENSITY_THRESHOLDS.WITH_ADVANCED;
-  }
-}
+// Create logical progressions
+const dependencyChains = {
+  'basic-feature': [],                    // Always visible
+  'advanced-feature': [USAGE_BASED],      // After learning basics
+  'expert-feature': [WORKFLOW_BASED]      // After mastering workflow
+};
 ```
 
 ### Component Hierarchies
@@ -167,7 +177,7 @@ function Editor() {
 
 ### 1. Smooth Transitions
 
-Animate density changes to avoid jarring UI shifts:
+Animate element unlocking to provide smooth progressive disclosure:
 
 ```css
 /* Smooth element appearance */
@@ -191,7 +201,7 @@ Animate density changes to avoid jarring UI shifts:
   transition: gap 0.3s ease;
 }
 
-.toolbar[data-density="high"] {
+.toolbar[data-uiflow-visible="true"] {
   gap: 0.25rem;
 }
 ```
@@ -207,16 +217,14 @@ class FeatureDiscovery {
     this.uiflow = uiflow;
     this.shownFeatures = new Set();
     
-    document.addEventListener('uiflow:adaptation', this.handleAdaptation.bind(this));
+    document.addEventListener('uiflow:element-unlocked', this.handleUnlock.bind(this));
   }
   
-  handleAdaptation(event) {
-    const { area, newDensity, oldDensity } = event.detail;
+  handleUnlock(event) {
+    const { elementId, category, area } = event.detail;
     
-    // Only show discovery for significant increases
-    if (newDensity - oldDensity < 0.2) return;
-    
-    setTimeout(() => this.discoverFeatures(area), 500);
+    // Show discovery for newly unlocked elements
+    setTimeout(() => this.introduceFeature(elementId), 500);
   }
   
   discoverFeatures(area) {
